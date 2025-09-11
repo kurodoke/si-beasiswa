@@ -35,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             },
             {
                 title: 'Mahasiswa Beasiswa',
-                url: beasiswa.index().url,
+                url: '#',
                 icon: GraduationCapIcon,
                 items: [
                     {
@@ -57,6 +57,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: 'Manajemen Akun',
                 url: users.index.url(),
                 icon: ShieldCheckIcon,
+            }, {
+                title: 'Manajemen Jenis Beasiswa',
+                url: beasiswa.index().url,
+                icon: FilePlus2Icon,
             });
         }
     } 

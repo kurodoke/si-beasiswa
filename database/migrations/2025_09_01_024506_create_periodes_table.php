@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('beasiswas', function (Blueprint $table) {
+        Schema::create('periodes', function (Blueprint $table) {
             $table->id();
-            $table->string('jenis_beasiswa');
+            $table->string('nama_periode'); 
+            $table->unsignedTinyInteger('bulan_mulai');  
+            $table->unsignedSmallInteger('tahun_mulai'); 
+            $table->unsignedTinyInteger('bulan_selesai'); 
+            $table->unsignedSmallInteger('tahun_selesai');
             $table->timestamps();
         });
     }
@@ -23,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('beasiswas');
+        Schema::dropIfExists('periodes');
     }
 };

@@ -12,14 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('laporan_penerimas', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('beasiswa_id')->constrained()->onDelete('cascade');
-            $table->year('tahun_penerimaan');
-            $table->enum('status_validasi', ['pending', 'disetujui', 'ditolak'])->default('pending');
-            $table->text('catatan_admin')->nullable();
-            $table->timestamps();
-        });
+        $table->id();
+        $table->string('nama_mahasiswa');
+        $table->string('npm');
+        $table->string('angkatan');
+
+        // Relasi ke beasiswa
+        $table->string('nama_beasiswa');
+        $table->foreignId('beasiswa_id')->constrained()->onDelete('cascade');
+
+        // Periode penerimaan dan selesai (gunakan tanggal 1 sebagai default)
+        $table->foreignId('periode_id')->nullable()->constrained('periodes')->nullOnDelete();
+
+        $table->date('penerimaan_beasiswa'); // YYYY-MM-01
+        $table->date('selesai_beasiswa');    // YYYY-MM-01
+
+        // Validasi status
+        $table->enum('status_validasi', ['pending', 'disetujui'])->default('pending');
+        $table->timestamp('verified_at')->nullable();
+        $table->foreignId('verified_by')->nullable()->constrained('users');
+
+        $table->timestamps();
+    });
+
     }
 
     /**

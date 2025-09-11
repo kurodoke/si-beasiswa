@@ -16,11 +16,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('beasiswa/verified', [BeasiswaController::class, 'indexVerified'])->name('beasiswa.verified');
     Route::get('beasiswa/unverified', [BeasiswaController::class, 'indexUnverified'])->name('beasiswa.unverified');
-
+    
     Route::middleware('admin')->group(function () {
+        Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('users', UserManagementController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });

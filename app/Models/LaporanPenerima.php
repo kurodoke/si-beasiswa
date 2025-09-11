@@ -11,10 +11,13 @@ class LaporanPenerima extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+
+    protected $casts = [
+    'penerimaan_beasiswa' => 'date',
+    'selesai_beasiswa' => 'date',
+    'verified_at' => 'datetime',
+    ];
+
 
     public function beasiswa()
     {
@@ -30,4 +33,29 @@ class LaporanPenerima extends Model
     {
         return $this->belongsTo(User::class, 'verified_by');
     }
+
+    public function periode(): BelongsTo
+    {
+        return $this->belongsTo(Periode::class);
+    }
+
+    public function getLabelPenerimaanAttribute(): string
+    {
+        return $this->penerimaan_beasiswa?->translatedFormat('F Y') ?? '-';
+    }
+
+    public function getLabelSelesaiAttribute(): string
+    {
+        return $this->selesai_beasiswa?->translatedFormat('F Y') ?? '-';
+    }
+
+    public function scopeAktifDalamPeriode($query, $periode)
+    {
+        $start = \Carbon\Carbon::create($periode->tahun_mulai, $periode->bulan_mulai, 1);
+        $end = \Carbon\Carbon::create($periode->tahun_selesai, $periode->bulan_selesai, 1)->endOfMonth();
+
+        return $query->whereDate('penerimaan_beasiswa', '<=', $end)
+                     ->whereDate('selesai_beasiswa', '>=', $start);
+    }
+
 }

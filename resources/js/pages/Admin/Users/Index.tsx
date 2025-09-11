@@ -1,4 +1,4 @@
-import { DataTable } from '@/components/data-table-account';
+import { DataTable } from '@/components/data-table/data-table-account';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
