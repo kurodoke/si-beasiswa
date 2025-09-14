@@ -9,18 +9,17 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from './ui/alert-dialog';
+} from '../../ui/alert-dialog';
+import BeasiswaController from '@/actions/App/Http/Controllers/Admin/BeasiswaController';
 
-export function DialogDeleteAccount({
-    user,
+export function DialogDelete({
+    data,
     open,
     setOpen,
-    loggedInUser,
 }: {
-    user: any;
+    data: any;
     open: boolean;
     setOpen: (open: boolean) => void;
-    loggedInUser: any;
 }) {
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
@@ -28,12 +27,12 @@ export function DialogDeleteAccount({
                 <AlertDialogHeader>
                     <AlertDialogTitle>Apakah kamu yakin?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Ini akan menghapus akun <span className="font-bold">{user.name}</span> secara permanen dan tidak dapat dikembalikan.
+                        Ini akan menghapus jenis beasiswa <span className="font-bold">{data.jenis_beasiswa}</span> beserta data beasiswa berjumlah <span className='font-bold text-lg'>{data.jumlah_beasiswa}</span> secara permanen dan tidak dapat dikembalikan.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Tidak</AlertDialogCancel>
-                    <Form {...UserManagementController.destroy.form(user.id)} className='w-full sm:w-auto'>
+                    <Form {...BeasiswaController.destroy.form(data.id)} className='w-full sm:w-auto'>
                         <AlertDialogAction
                             type="submit"
                             className='w-full sm:w-auto'

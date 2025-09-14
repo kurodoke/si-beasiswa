@@ -15,10 +15,10 @@ import { Label } from '@/components/ui/label';
 import { Form } from '@inertiajs/react';
 import { LoaderCircle, PlusIcon } from 'lucide-react';
 import React from 'react';
-import InputError from './input-error';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import InputError from '../../input-error';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
-export function DialogCreateAccount() {
+export function DialogCreate() {
     const [password, setPassword] = React.useState('');
 
     return (

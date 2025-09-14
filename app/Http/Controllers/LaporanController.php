@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Beasiswa;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -30,7 +30,7 @@ class LaporanController extends Controller
         $user = Auth::user();
 
         // 2. Lengkapi Data saat Membuat Laporan
-        $laporan = LaporanPenerima::create([
+        $laporan = LaporanBeasiswa::create([
             'user_id' => $user->id,
             'nama_mahasiswa' => $user->name, // Ambil dari data user
             'npm' => $user->npm, // Ambil dari data user

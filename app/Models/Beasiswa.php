@@ -11,8 +11,8 @@ class Beasiswa extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    public function laporanPenerimas(): hasMany
+    public function laporanBeasiswa(): hasMany
     {
-        return $this->hasMany(LaporanPenerima::class);
+        return $this->hasMany(LaporanBeasiswa::class);
     }
 }

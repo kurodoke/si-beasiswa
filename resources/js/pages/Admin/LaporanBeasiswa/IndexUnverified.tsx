@@ -1,22 +1,12 @@
-import { DataTable } from '@/components/data-table/data-table-jenis-beasiswa';
+import { DataTable } from '@/components/data-table/laporan-beasiswa/data-table';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
-import { Auth } from '@/types';
+import { Auth, LaporanBeasiswa, Periode } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-interface JenisBeasiswa {
-    id: number;
-    jenis_beasiswa: string;
-    jumlah_beasiswa: number;
-}
-
-
-export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBeasiswa> }) {
-    console.log(data);
-    
-    
+export default function Index({ auth, data, periode_list }: { auth: Auth; data: Array<LaporanBeasiswa>; periode_list: Array<Periode> }) {
     const { flash } = usePage().props as {
         flash?: {
             success?: string;
@@ -28,7 +18,7 @@ export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBea
     const [message, setMessage] = React.useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [show, setShow] = React.useState(false);
 
-    React.useEffect(() => {        
+    React.useEffect(() => {
         if (flash?.success) {
             setMessage({ type: 'success', text: flash.success });
             setShow(true);
@@ -38,7 +28,12 @@ export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBea
         }
     }, [flash?.success, flash?.error, errors]);
     return (
-        <AppLayout breadcrumbs={[{ title: 'Managemen Jenis Beasiswa', href: users.index.url() }]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Laporan Beasiswa', href: users.index.url() },
+                { title: 'Belum Terverifikasi', href: users.index.url() },
+            ]}
+        >
             {show && message && Object.keys(errors).length == 0 && (
                 <FlashAlert
                     key={Date.now()}
@@ -47,8 +42,7 @@ export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBea
                     duration={3000}
                 />
             )}
-
-            <DataTable data={data} auth={auth} />
+            <DataTable data={data} auth={auth} periode_list={periode_list} />
         </AppLayout>
     );
 }

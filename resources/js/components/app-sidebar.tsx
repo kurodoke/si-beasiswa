@@ -12,9 +12,11 @@ import beasiswa from '@/routes/admin/beasiswa';
 import profile from '@/routes/profile';
 
 import users from '@/routes/admin/users';
+import laporanbeasiswa from '@/routes/admin/laporanbeasiswa';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage().props;
+    // @ts-ignore
     const user = auth.user;
 
     let navMainItems: NavItem[] = [];
@@ -34,18 +36,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon: LayoutDashboardIcon,
             },
             {
-                title: 'Mahasiswa Beasiswa',
-                url: '#',
+                title: 'Laporan Beasiswa',
+                url: laporanbeasiswa.index().url,
                 icon: GraduationCapIcon,
                 items: [
                     {
                         title: 'Terverifikasi',
-                        url: beasiswa.verified().url,
+                        url: laporanbeasiswa.verified().url,
                         icon: BookOpenCheckIcon,
                     },
                     {
                         title: 'Belum Terverifikasi',
-                        url: beasiswa.unverified().url,
+                        url: laporanbeasiswa.unverified().url,
                         icon: BookOpenIcon,
                     },
                 ],

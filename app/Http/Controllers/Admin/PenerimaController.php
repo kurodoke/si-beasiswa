@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Beasiswa;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,13 +21,13 @@ class PenerimaController extends Controller
     {
         $request->validate([
             'nama_mahasiswa' => 'required|string|max:255',
-            'npm' => 'required|string|max:255|unique:laporan_penerimas,npm',
+            'npm' => 'required|string|max:255|unique:laporan_beasiswas,npm',
             'program_studi_id' => 'required|exists:program_studis,id',
             'beasiswa_id' => 'required|exists:beasiswas,id',
             'tahun_penerimaan' => 'required|digits:4',
         ]);
 
-        LaporanPenerima::create([
+        LaporanBeasiswa::create([
             'nama_mahasiswa' => $request->nama_mahasiswa,
             'npm' => $request->npm,
             'program_studi_id' => $request->program_studi_id,

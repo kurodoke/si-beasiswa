@@ -27,26 +27,46 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, GripVerticalIcon, MoreVerticalIcon, Search } from 'lucide-react';
+import {
+    ChevronDownIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    ChevronsLeftIcon,
+    ChevronsRightIcon,
+    ColumnsIcon,
+    GripVerticalIcon,
+    MoreVerticalIcon,
+    Search,
+    UserCogIcon,
+    UserPenIcon,
+} from 'lucide-react';
 import * as React from 'react';
 import { z } from 'zod';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { DialogCreateJenisBeasiswa } from '../dialog-form-create-jenis-beasiswa';
-import { DialogDeleteJenisBeasiswa } from '../dialog-form-delete-jenis-beasiswa';
-import { DialogEditJenisBeasiswa } from '../dialog-form-update-jenis-beasiswa';
-import { Input } from '../ui/input';
+import { DialogCreate } from '../../dialog-form/account/dialog-form-create';
+import { DialogDelete } from '../../dialog-form/account/dialog-form-delete';
+import { DialogEdit } from '../../dialog-form/account/dialog-form-update';
+import { Input } from '../../ui/input';
 
 export const schema = z.object({
     id: z.number(),
-    jenis_beasiswa: z.string(),
-    jumlah_beasiswa: z.number(),
+    name: z.string(),
+    email: z.string(),
+    role: z.string(),
 });
 
 // Create a separate component for the drag handle
@@ -87,8 +107,8 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 }
 
 const createColumns = (handlers: {
-    onEdit: (data: z.infer<typeof schema>) => void;
-    onDelete: (data: z.infer<typeof schema>) => void;
+    onEdit: (user: z.infer<typeof schema>) => void;
+    onDelete: (user: z.infer<typeof schema>) => void;
     authUserId: number;
 }): ColumnDef<z.infer<typeof schema>>[] => [
     {
@@ -96,28 +116,41 @@ const createColumns = (handlers: {
         header: () => null,
         cell: ({ row }) => <DragHandle id={row.original.id} />,
     },
-        {
-        accessorKey: 'jenis_beasiswa',
-        header: 'Jenis Beasiswa',
-        cell: ({ row }) => <div className="w-min-32 w-full font-medium">{row.original.jenis_beasiswa}</div>,
+    {
+        accessorKey: 'name',
+        header: 'Nama',
+        cell: ({ row }) => <div className="w-min-32 font-medium">{row.original.name}</div>,
         enableHiding: false,
     },
     {
-        accessorKey: 'jumlah_beasiswa',
-        header: 'Jumlah Beasiswa',
+        accessorKey: 'email',
+        header: 'Email',
         cell: ({ row }) => (
             <div className="w-32">
                 <Badge variant="outline" className="px-1.5 text-muted-foreground">
-                    <span className='font-bold text-lg'>{row.original.jumlah_beasiswa}</span>{" "}Laporan
+                    {row.original.email}
                 </Badge>
             </div>
         ),
-        enableHiding: false,
+    },
+    {
+        accessorKey: 'role',
+        header: 'Role',
+        cell: ({ row }) => (
+            <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
+                {row.original.role === 'admin' ? (
+                    <UserCogIcon className="text-blue-500 dark:text-blue-400" />
+                ) : (
+                    <UserPenIcon className="text-green-500 dark:text-green-400" />
+                )}
+                {row.original.role}
+            </Badge>
+        ),
     },
     {
         id: 'actions',
         cell: ({ row }) => (
-            <div className="flex justify-end">
+            <div className="flex w-full justify-end">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
@@ -136,6 +169,7 @@ const createColumns = (handlers: {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             variant="destructive"
+                            disabled={row.original.id === handlers.authUserId}
                             onClick={() => {
                                 handlers.onDelete(row.original);
                             }}
@@ -149,13 +183,90 @@ const createColumns = (handlers: {
     },
 ];
 
+//     {
+//         id: 'drag',
+//         header: () => null,
+//         cell: ({ row }) => <DragHandle id={row.original.id} />,
+//     },
+//     {
+//         accessorKey: 'name',
+//         header: 'Nama',
+//         cell: ({ row }) => {
+//             return <div className="w-min-32 font-medium">{row.original.name}</div>;
+//         },
+//         enableHiding: false,
+//     },
+//     {
+//         accessorKey: 'email',
+//         header: 'Email',
+//         cell: ({ row }) => (
+//             <div className="w-32">
+//                 <Badge variant="outline" className="px-1.5 text-muted-foreground">
+//                     {row.original.email}
+//                 </Badge>
+//             </div>
+//         ),
+//     },
+//     {
+//         accessorKey: 'role',
+//         header: 'Role',
+//         cell: ({ row }) => (
+//             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
+//                 {row.original.role === 'admin' ? (
+//                     <UserCogIcon className="text-blue-500 dark:text-blue-400" />
+//                 ) : (
+//                     <UserPenIcon className="text-green-500 dark:text-green-400" />
+//                 )}
+//                 {row.original.role}
+//             </Badge>
+//         ),
+//     },
+//     {
+//         id: 'actions',
+//         cell: ({ row }) => (
+//             <div className="flex w-full justify-end">
+//                 <DropdownMenu>
+//                     <DropdownMenuTrigger asChild>
+//                         <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
+//                             <MoreVerticalIcon />
+//                             <span className="sr-only">Open menu</span>
+//                         </Button>
+//                     </DropdownMenuTrigger>
+//                     <DropdownMenuContent align="end" className="w-32">
+//                         <DropdownMenuItem
+//                             onClick={() => {
+//                                 setOpenDialogUpdate(true);
+//                                 setSelectedUser(row.original);
+//                             }}
+//                         >
+//                             Edit
+//                         </DropdownMenuItem>
+//                         <DropdownMenuSeparator />
+//                         <DropdownMenuItem
+//                             variant="destructive"
+//                             disabled={row.original.id === auth.user.id}
+//                             onClick={() => {
+//                                 setOpenDialogDelete(true);
+//                                 setSelectedUser(row.original);
+//                             }}
+//                         >
+//                             Hapus
+//                         </DropdownMenuItem>
+//                     </DropdownMenuContent>
+//                 </DropdownMenu>
+//             </div>
+//         ),
+//     },
+// ];
+
 export function DataTable({ data: initialData, auth }: { data: z.infer<typeof schema>[]; auth: any }) {
     const [openDialogUpdate, setOpenDialogUpdate] = React.useState(false);
     const [openDialogDelete, setOpenDialogDelete] = React.useState(false);
-    const [selectedJenisBeasiswa, setSelectedJenisBeasiswa] = React.useState<z.infer<typeof schema>>({
+    const [selectedUser, setSelectedUser] = React.useState<z.infer<typeof schema>>({
         id: 0,
-        jenis_beasiswa: '',
-        jumlah_beasiswa: 0,
+        name: '',
+        email: '',
+        role: '',
     });
 
     const [data, setData] = React.useState(() => initialData);
@@ -178,12 +289,12 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
     const columns = React.useMemo(
         () =>
             createColumns({
-                onEdit: (data) => {
-                    setSelectedJenisBeasiswa(data);
+                onEdit: (user) => {
+                    setSelectedUser(user);
                     setOpenDialogUpdate(true);
                 },
-                onDelete: (data) => {
-                    setSelectedJenisBeasiswa(data);
+                onDelete: (user) => {
+                    setSelectedUser(user);
                     setOpenDialogDelete(true);
                 },
                 authUserId: auth.user.id,
@@ -238,15 +349,39 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                         Search
                     </Label>
                     <Input
-                        placeholder="Cari Jenis Beasiswa..."
-                        value={(table.getColumn('jenis_beasiswa')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('jenis_beasiswa')?.setFilterValue(event.target.value)}
+                        placeholder="Cari Akun..."
+                        value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+                        onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
                         className="h-8 pl-7"
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                 </div>
                 <div className="flex items-center justify-end gap-2">
-                    <DialogCreateJenisBeasiswa />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <ColumnsIcon />
+                                <span className="hidden lg:inline">Filter Role</span>
+                                <span className="lg:hidden">Role</span>
+                                <ChevronDownIcon />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            {Array.from(table.getColumn('role')?.getFacetedUniqueValues()?.keys() || []).map((value) => (
+                                <DropdownMenuCheckboxItem
+                                    key={'filter-role-' + value}
+                                    className="capitalize"
+                                    checked={value === table.getColumn('role')?.getFilterValue()}
+                                    onCheckedChange={(checked) => {
+                                        table.getColumn('role')?.setFilterValue(checked ? value : undefined);
+                                    }}
+                                >
+                                    {value}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DialogCreate />
                 </div>
             </div>
             <TabsContent value="outline" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -362,8 +497,8 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                     </div>
                 </div>
             </TabsContent>
-            <DialogEditJenisBeasiswa data={selectedJenisBeasiswa} open={openDialogUpdate} setOpen={setOpenDialogUpdate} />
-            <DialogDeleteJenisBeasiswa data={selectedJenisBeasiswa} open={openDialogDelete} setOpen={setOpenDialogDelete} />
+            <DialogEdit user={selectedUser} open={openDialogUpdate} setOpen={setOpenDialogUpdate} loggedInUser={auth.user} />
+            <DialogDelete user={selectedUser} open={openDialogDelete} setOpen={setOpenDialogDelete} loggedInUser={auth.user} />
         </Tabs>
     );
 }

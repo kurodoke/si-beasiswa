@@ -6,26 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\Beasiswa;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 
 class BeasiswaController extends Controller
 {
     public function index()
     {
         $beasiswa_laporan = Beasiswa::select('id', 'jenis_beasiswa')
-            ->withCount('laporanPenerimas')
+            ->withCount('laporanBeasiswa')
             ->get()
             ->groupBy('jenis_beasiswa')
             ->map(function ($group) {
                 return [
                     'id' => $group->first()->id,
                     'jenis_beasiswa' => $group->first()->jenis_beasiswa,
-                    'jumlah_beasiswa' => $group->sum('laporan_penerimas_count'),
+                    'jumlah_beasiswa' => $group->sum('laporan_beasiswa_count'),
                 ];
             })
             ->values();
 
-        return Inertia::render('Admin/Beasiswa/Index', [
+        return Inertia::render('Admin/JenisBeasiswa/Index', [
             'data' => $beasiswa_laporan,
         ]);
     }
@@ -57,20 +57,5 @@ class BeasiswaController extends Controller
     {
         $beasiswa->delete();
         return to_route('admin.beasiswa.index')->with('success', 'Data berhasil dihapus.');
-    }
-
-    
-    public function indexVerified()
-    {
-        return Inertia::render('Admin/Beasiswa/IndexVerified', [
-            'beasiswas' => Beasiswa::all(),
-        ]);
-    }
-
-    public function indexUnverified()
-    {
-        return Inertia::render('Admin/Beasiswa/IndexUnverified', [
-            'beasiswas' => Beasiswa::all(),
-        ]);
     }
 }

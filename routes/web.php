@@ -8,17 +8,37 @@ use App\Http\Controllers\Admin\ProgramStudiController;
 use App\Http\Controllers\Admin\PenerimaController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\Admin\LaporanBeasiswaController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\DokumenController;
 
 Route::middleware(['auth', 'verified'])->group(function () {    
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 
 Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('beasiswa/verified', [BeasiswaController::class, 'indexVerified'])->name('beasiswa.verified');
-    Route::get('beasiswa/unverified', [BeasiswaController::class, 'indexUnverified'])->name('beasiswa.unverified');
+
+    // Laporan Beasiswa
+    Route::get('laporan/verified', [LaporanBeasiswaController::class, 'indexVerified'])->name('laporanbeasiswa.verified');
+    Route::get('laporan/unverified', [LaporanBeasiswaController::class, 'indexUnverified'])->name('laporanbeasiswa.unverified');
     
+    // Dokumen
+    Route::get('/dokumen/download/{filename}', [DokumenController::class, 'download'])
+        ->where('filename', '.*')
+        ->name('dokumen.download');
+    
+    Route::post('/dokumen/upload/{id}', [DokumenController::class, 'upload'])
+        ->where('id', '[0-9]+')
+        ->name('dokumen.upload');
+
+
+    Route::resource('laporan', LaporanBeasiswaController::class)->only(['index', 'store', 'update', 'destroy'])->names([
+        'index' => 'laporanbeasiswa.index',
+        'store' => 'laporanbeasiswa.store',
+        'update' => 'laporanbeasiswa.update',
+        'destroy' => 'laporanbeasiswa.destroy',
+    ]);
+
     Route::middleware('admin')->group(function () {
         Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('users', UserManagementController::class)->only(['index', 'store', 'update', 'destroy']);

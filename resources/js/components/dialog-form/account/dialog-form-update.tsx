@@ -6,10 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Form } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import React from 'react';
-import InputError from './input-error';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import InputError from '../../input-error';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
-export function DialogEditAccount({
+export function DialogEdit({
     user,
     open,
     setOpen,

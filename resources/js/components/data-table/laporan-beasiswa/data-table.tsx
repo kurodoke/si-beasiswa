@@ -28,21 +28,22 @@ import {
     useReactTable,
 } from '@tanstack/react-table';
 import {
+    CalendarClockIcon,
     ChevronDownIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
     ChevronsLeftIcon,
     ChevronsRightIcon,
-    ColumnsIcon,
+    CircleCheckIcon,
+    Clock4Icon,
     GripVerticalIcon,
     MoreVerticalIcon,
     Search,
-    UserCogIcon,
-    UserPenIcon,
 } from 'lucide-react';
 import * as React from 'react';
 import { z } from 'zod';
 
+import { DialogEdit } from '@/components/dialog-form/laporan-beasiswa/dialog-form-update';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,16 +58,38 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { DialogCreateAccount } from '../dialog-form-create-account';
-import { DialogDeleteAccount } from '../dialog-form-delete-account';
-import { DialogEditAccount } from '../dialog-form-update-account';
-import { Input } from '../ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { DialogDelete } from '../../dialog-form/laporan-beasiswa/dialog-form-delete';
+import { Input } from '../../ui/input';
+import { Periode } from '@/types';
 
 export const schema = z.object({
-    id: z.number(),
-    name: z.string(),
-    email: z.string(),
-    role: z.string(),
+    id: z.number().int(),
+    nama_mahasiswa: z.string(),
+    npm: z.string().regex(/^[0-9]{8,12}$/),
+    angkatan: z.string(),
+    nama_beasiswa: z.string(),
+    beasiswa_id: z.number().int(),
+    periode_id: z.optional(z.number().int()),
+    penerimaan_beasiswa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    selesai_beasiswa: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    status_validasi: z.enum(['pending', 'disetujui']),
+    verified_at: z.optional(z.string().datetime()),
+    verified_by: z.optional(z.number().int()),
+    periode: z.optional(
+        z.object({
+            periode: z.number().int(),
+            tahun_mulai: z.string(),
+            bulan_mulai: z.string(),
+            tahun_selesai: z.string(),
+            bulan_selesai: z.string(),
+        }),
+    ),
+    beasiswa: z.optional(z.object({ id: z.number().int(), jenis_beasiswa: z.string() })),
+    verifier: z.optional(z.object({ id: z.number().int(), name: z.string() })),
+    dokumenBukti: z.optional(z.object({ id: z.number().int(), nama_file: z.string(), path_file: z.string() })),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime(),
 });
 
 // Create a separate component for the drag handle
@@ -107,8 +130,8 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 }
 
 const createColumns = (handlers: {
-    onEdit: (user: z.infer<typeof schema>) => void;
-    onDelete: (user: z.infer<typeof schema>) => void;
+    onEdit: (data: z.infer<typeof schema>) => void;
+    onDelete: (data: z.infer<typeof schema>) => void;
     authUserId: number;
 }): ColumnDef<z.infer<typeof schema>>[] => [
     {
@@ -119,31 +142,65 @@ const createColumns = (handlers: {
     {
         accessorKey: 'name',
         header: 'Nama',
-        cell: ({ row }) => <div className="w-min-32 font-medium">{row.original.name}</div>,
+        cell: ({ row }) => <div className="w-min-32 font-bold">{row.original.nama_mahasiswa}</div>,
         enableHiding: false,
     },
     {
-        accessorKey: 'email',
-        header: 'Email',
-        cell: ({ row }) => (
-            <div className="w-32">
-                <Badge variant="outline" className="px-1.5 text-muted-foreground">
-                    {row.original.email}
-                </Badge>
-            </div>
-        ),
+        accessorKey: 'npm',
+        header: 'NPM',
+        cell: ({ row }) => <div className="w-min-32 font-normal">{row.original.npm}</div>,
+        enableHiding: false,
     },
     {
-        accessorKey: 'role',
-        header: 'Role',
+        accessorKey: 'angkatan',
+        header: 'Angkatan',
+        cell: ({ row }) => <div className="w-min-32 font-normal">{row.original.angkatan}</div>,
+    },
+
+    {
+        accessorKey: 'nama_beasiswa',
+        header: 'Beasiswa',
+        cell: ({ row }) => <div className="w-min-32 font-normal">{row.original.nama_beasiswa}</div>,
+    },
+    {
+        accessorKey: 'periode',
+        header: 'Periode',
+        cell: ({ row }) => (
+            <div className="w-32">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Badge variant="outline" className="px-1.5 text-muted-foreground">
+                            Periode <span className="text-md font-bold">ke-{row.original.periode?.periode}</span>
+                        </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        {row.original.periode?.bulan_mulai}/{row.original.periode?.tahun_mulai} - {row.original.periode?.bulan_selesai}/
+                        {row.original.periode?.tahun_selesai}
+                    </TooltipContent>
+                </Tooltip>
+            </div>
+        ),
+        enableHiding: false,
+        filterFn: (row, id, value) => {
+            return row.original.periode?.periode === Number(value);
+        },
+    },
+    {
+        accessorKey: 'status',
+        header: 'Status',
         cell: ({ row }) => (
             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-                {row.original.role === 'admin' ? (
-                    <UserCogIcon className="text-blue-500 dark:text-blue-400" />
+                {row.original.status_validasi === 'pending' ? (
+                    <>
+                        <Clock4Icon className="text-blue-500 dark:text-blue-400" />
+                        <span className="text-blue-500 dark:text-blue-400">Belum Terverifikasi</span>
+                    </>
                 ) : (
-                    <UserPenIcon className="text-green-500 dark:text-green-400" />
+                    <>
+                        <CircleCheckIcon className="text-green-500 dark:text-green-400" />
+                        <span className="text-green-500 dark:text-green-400">Terverifikasi</span>
+                    </>
                 )}
-                {row.original.role}
             </Badge>
         ),
     },
@@ -159,17 +216,10 @@ const createColumns = (handlers: {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem
-                            onClick={() => {
-                                handlers.onEdit(row.original);
-                            }}
-                        >
-                            Edit
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlers.onEdit(row.original)}>Lihat</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             variant="destructive"
-                            disabled={row.original.id === handlers.authUserId}
                             onClick={() => {
                                 handlers.onDelete(row.original);
                             }}
@@ -183,90 +233,50 @@ const createColumns = (handlers: {
     },
 ];
 
-//     {
-//         id: 'drag',
-//         header: () => null,
-//         cell: ({ row }) => <DragHandle id={row.original.id} />,
-//     },
-//     {
-//         accessorKey: 'name',
-//         header: 'Nama',
-//         cell: ({ row }) => {
-//             return <div className="w-min-32 font-medium">{row.original.name}</div>;
-//         },
-//         enableHiding: false,
-//     },
-//     {
-//         accessorKey: 'email',
-//         header: 'Email',
-//         cell: ({ row }) => (
-//             <div className="w-32">
-//                 <Badge variant="outline" className="px-1.5 text-muted-foreground">
-//                     {row.original.email}
-//                 </Badge>
-//             </div>
-//         ),
-//     },
-//     {
-//         accessorKey: 'role',
-//         header: 'Role',
-//         cell: ({ row }) => (
-//             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-//                 {row.original.role === 'admin' ? (
-//                     <UserCogIcon className="text-blue-500 dark:text-blue-400" />
-//                 ) : (
-//                     <UserPenIcon className="text-green-500 dark:text-green-400" />
-//                 )}
-//                 {row.original.role}
-//             </Badge>
-//         ),
-//     },
-//     {
-//         id: 'actions',
-//         cell: ({ row }) => (
-//             <div className="flex w-full justify-end">
-//                 <DropdownMenu>
-//                     <DropdownMenuTrigger asChild>
-//                         <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
-//                             <MoreVerticalIcon />
-//                             <span className="sr-only">Open menu</span>
-//                         </Button>
-//                     </DropdownMenuTrigger>
-//                     <DropdownMenuContent align="end" className="w-32">
-//                         <DropdownMenuItem
-//                             onClick={() => {
-//                                 setOpenDialogUpdate(true);
-//                                 setSelectedUser(row.original);
-//                             }}
-//                         >
-//                             Edit
-//                         </DropdownMenuItem>
-//                         <DropdownMenuSeparator />
-//                         <DropdownMenuItem
-//                             variant="destructive"
-//                             disabled={row.original.id === auth.user.id}
-//                             onClick={() => {
-//                                 setOpenDialogDelete(true);
-//                                 setSelectedUser(row.original);
-//                             }}
-//                         >
-//                             Hapus
-//                         </DropdownMenuItem>
-//                     </DropdownMenuContent>
-//                 </DropdownMenu>
-//             </div>
-//         ),
-//     },
-// ];
-
-export function DataTable({ data: initialData, auth }: { data: z.infer<typeof schema>[]; auth: any }) {
+export function DataTable({ data: initialData, auth, periode_list }: { data: z.infer<typeof schema>[]; auth: any; periode_list: Array<Periode> }) {
     const [openDialogUpdate, setOpenDialogUpdate] = React.useState(false);
+    const [globalFilter, setGlobalFilter] = React.useState('');
+
     const [openDialogDelete, setOpenDialogDelete] = React.useState(false);
-    const [selectedUser, setSelectedUser] = React.useState<z.infer<typeof schema>>({
+    const [selectedLaporan, setSelectedLaporan] = React.useState<z.infer<typeof schema>>({
         id: 0,
-        name: '',
-        email: '',
-        role: '',
+        nama_mahasiswa: '',
+        npm: '', // harus valid sesuai regex: 8-12 digit
+        angkatan: '',
+        nama_beasiswa: '',
+        beasiswa_id: 0,
+        periode_id: undefined,
+        penerimaan_beasiswa: '2001-01-01', // format: YYYY-MM-DD
+        selesai_beasiswa: '2001-12-31', // format: YYYY-MM-DD
+        status_validasi: 'pending',
+        verified_at: undefined,
+        verified_by: undefined,
+        created_at: new Date().toISOString(), // ISO string datetime
+        updated_at: new Date().toISOString(), // ISO string datetime
+
+        periode: {
+            periode: 0,
+            tahun_mulai: '',
+            bulan_mulai: '',
+            tahun_selesai: '',
+            bulan_selesai: '',
+        },
+
+        beasiswa: {
+            id: 0,
+            jenis_beasiswa: '',
+        },
+
+        verifier: {
+            id: 0,
+            name: '',
+        },
+
+        dokumenBukti: {
+            id: 0,
+            nama_file: '',
+            path_file: '',
+        },
     });
 
     const [data, setData] = React.useState(() => initialData);
@@ -289,12 +299,12 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
     const columns = React.useMemo(
         () =>
             createColumns({
-                onEdit: (user) => {
-                    setSelectedUser(user);
+                onEdit: (data) => {
+                    setSelectedLaporan(data);
                     setOpenDialogUpdate(true);
                 },
-                onDelete: (user) => {
-                    setSelectedUser(user);
+                onDelete: (data) => {
+                    setSelectedLaporan(data);
                     setOpenDialogDelete(true);
                 },
                 authUserId: auth.user.id,
@@ -311,6 +321,7 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
             rowSelection,
             columnFilters,
             pagination,
+            globalFilter,
         },
         getRowId: (row) => row.id.toString(),
         enableRowSelection: true,
@@ -325,6 +336,10 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: (row, columnId, filterValue) => {
+            return Object.values(row.original).some((value) => String(value).toLowerCase().includes(filterValue.toLowerCase()));
+        },
     });
 
     function handleDragEnd(event: DragEndEvent) {
@@ -349,9 +364,9 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                         Search
                     </Label>
                     <Input
-                        placeholder="Cari Akun..."
-                        value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
+                        placeholder="Cari..."
+                        value={globalFilter ?? ''}
+                        onChange={(event) => setGlobalFilter(event.target.value)}
                         className="h-8 pl-7"
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
@@ -360,28 +375,32 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm">
-                                <ColumnsIcon />
-                                <span className="hidden lg:inline">Filter Role</span>
-                                <span className="lg:hidden">Role</span>
+                                <CalendarClockIcon />
+                                <span className="hidden lg:inline">Pilih Periode</span>
+                                <span className="lg:hidden">Periode</span>
                                 <ChevronDownIcon />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
-                            {Array.from(table.getColumn('role')?.getFacetedUniqueValues()?.keys() || []).map((value) => (
+                            {periode_list.map((periode) => (
                                 <DropdownMenuCheckboxItem
-                                    key={'filter-role-' + value}
+                                    key={'filter-periode-' + periode.id}
                                     className="capitalize"
-                                    checked={value === table.getColumn('role')?.getFilterValue()}
+                                    checked={periode.periode === table.getColumn('periode')?.getFilterValue()}
                                     onCheckedChange={(checked) => {
-                                        table.getColumn('role')?.setFilterValue(checked ? value : undefined);
+                                        table.getColumn('periode')?.setFilterValue(checked ? periode.periode : undefined);
                                     }}
                                 >
-                                    {value}
+                                    <div className="flex flex-col">
+                                        <p className="font-bold">Periode ke-{periode.periode}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {periode.bulan_mulai}/{periode.tahun_mulai} - {periode.bulan_selesai}/{periode.tahun_selesai}
+                                        </p>
+                                    </div>
                                 </DropdownMenuCheckboxItem>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <DialogCreateAccount />
                 </div>
             </div>
             <TabsContent value="outline" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -497,8 +516,8 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                     </div>
                 </div>
             </TabsContent>
-            <DialogEditAccount user={selectedUser} open={openDialogUpdate} setOpen={setOpenDialogUpdate} loggedInUser={auth.user} />
-            <DialogDeleteAccount user={selectedUser} open={openDialogDelete} setOpen={setOpenDialogDelete} loggedInUser={auth.user} />
+            <DialogEdit data={selectedLaporan} open={openDialogUpdate} setOpen={setOpenDialogUpdate} userRole={auth.user.role}/>
+            <DialogDelete data={selectedLaporan} open={openDialogDelete} setOpen={setOpenDialogDelete} />
         </Tabs>
     );
 }

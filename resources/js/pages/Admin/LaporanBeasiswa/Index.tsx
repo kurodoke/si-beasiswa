@@ -1,13 +1,13 @@
-import { DataTable } from '@/components/data-table/account/data-table';
+import { DataTable } from '@/components/data-table/laporan-beasiswa/data-table';
 import { FlashAlert } from '@/components/flash-alert';
+import { SectionCards } from '@/components/section-card/laporan-beasiswa/section-cards';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
-import { Auth, User } from '@/types';
+import { Auth, LaporanBeasiswa, Periode, SummaryLaporan } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-
-export default function Index({ auth, accounts }: { auth: Auth; accounts: User[] }) {
+export default function Index({ auth, data, periode_list, summary }: { auth: Auth; data: Array<LaporanBeasiswa>; periode_list: Array<Periode>; summary: SummaryLaporan }) {
     const { flash } = usePage().props as {
         flash?: {
             success?: string;
@@ -19,7 +19,7 @@ export default function Index({ auth, accounts }: { auth: Auth; accounts: User[]
     const [message, setMessage] = React.useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [show, setShow] = React.useState(false);
 
-    React.useEffect(() => {        
+    React.useEffect(() => {
         if (flash?.success) {
             setMessage({ type: 'success', text: flash.success });
             setShow(true);
@@ -29,7 +29,7 @@ export default function Index({ auth, accounts }: { auth: Auth; accounts: User[]
         }
     }, [flash?.success, flash?.error, errors]);
     return (
-        <AppLayout breadcrumbs={[{ title: 'Manajemen Akun', href: users.index.url() }]}>
+        <AppLayout breadcrumbs={[{ title: 'Laporan Beasiswa', href: users.index.url() }]}>
             {show && message && Object.keys(errors).length == 0 && (
                 <FlashAlert
                     key={Date.now()}
@@ -38,8 +38,8 @@ export default function Index({ auth, accounts }: { auth: Auth; accounts: User[]
                     duration={3000}
                 />
             )}
-
-            <DataTable data={accounts} auth={auth} />
+            <SectionCards summary={summary}/>
+            <DataTable data={data} auth={auth} periode_list={periode_list} />
         </AppLayout>
     );
 }

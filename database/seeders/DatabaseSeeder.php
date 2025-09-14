@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Beasiswa;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 use App\Models\DokumenBukti;
 use App\Models\Periode;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -49,15 +49,23 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Periode::create([
-            'nama_periode' => 'Periode 57',
+            'periode' => 57,
             'bulan_mulai' => 4,
             'tahun_mulai' => 2025,
             'bulan_selesai' => 9,
             'tahun_selesai' => 2025,
         ]);
 
+        Periode::create([
+            'periode' => 56,
+            'bulan_mulai' => 4,
+            'tahun_mulai' => 2024,
+            'bulan_selesai' => 9,
+            'tahun_selesai' => 2024,
+        ]);
+
         // Laporan Penerima
-        LaporanPenerima::create([
+        LaporanBeasiswa::create([
             'nama_mahasiswa' => 'John Doe',
             'npm' => '12345678',
             'angkatan' => '2023',
@@ -69,12 +77,30 @@ class DatabaseSeeder extends Seeder
             'status_validasi' => 'pending',
         ]);
 
+        LaporanBeasiswa::create([
+            'nama_mahasiswa' => 'HAHAHAHA',
+            'npm' => '12345678',
+            'angkatan' => '2023',
+            'nama_beasiswa' => 'Beasiswa BNI',
+            'periode_id' => 2,
+            'selesai_beasiswa' => '2023-12-01',
+            'penerimaan_beasiswa' => '2023-01-01',
+            'beasiswa_id' => 3,
+            'status_validasi' => 'pending',
+        ]);
+
 
         // Dokumen Bukti
         DokumenBukti::create([
-            'laporan_penerima_id' => 1,
+            'laporan_beasiswa_id' => 1,
             'nama_file' => '0ewVkc9nwEc2OxqGmKVNx90W6iDzzaIUfY9rGZHN.pdf',
             'path_file' => 'storage/dokumen_bukti/0ewVkc9nwEc2OxqGmKVNx90W6iDzzaIUfY9rGZHN.pdf',
+        ]);
+
+        DokumenBukti::create([
+            'laporan_beasiswa_id' => 2,
+            'nama_file' => 'SBUtoRVX6JmZVvqNSz9pIpQmuCyUWoi9bZ2HEMfi.pdf',
+            'path_file' => 'storage/dokumen_bukti/SBUtoRVX6JmZVvqNSz9pIpQmuCyUWoi9bZ2HEMfi.pdf',
         ]);
     }
 }

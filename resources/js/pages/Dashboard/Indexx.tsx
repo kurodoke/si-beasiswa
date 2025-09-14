@@ -26,7 +26,7 @@ import { format } from 'date-fns'
 import lapor from '@/routes/lapor'
 
 // Definisikan tipe data yang lebih lengkap
-interface LaporanPenerima {
+interface LaporanBeasiswa {
     id: number
     beasiswa: {
         nama: string
@@ -42,8 +42,8 @@ interface LaporanPenerima {
 
 export default function Dashboard({
     auth,
-    laporanPenerimas = [],
-}: PageProps<{ laporanPenerimas: LaporanPenerima[] }>) {
+    laporanBeasiswa = [],
+}: PageProps<{ laporanBeasiswa: LaporanBeasiswa[] }>) {
     const getBadgeVariant = (status: string) => {
         switch (status) {
             case 'diterima':
@@ -91,8 +91,8 @@ export default function Dashboard({
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-2">
-                            {laporanPenerimas.length > 0 ? (
-                                laporanPenerimas.map((laporan) => (
+                            {laporanBeasiswa.length > 0 ? (
+                                laporanBeasiswa.map((laporan) => (
                                     <Collapsible key={laporan.id} className="rounded-md border">
                                         <div className="flex items-center justify-between p-4">
                                             <div>

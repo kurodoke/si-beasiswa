@@ -42,8 +42,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function laporanPenerima()
+    public function laporanBeasiswa()
     {
-        return $this->hasMany(LaporanPenerima::class);
+        return $this->hasMany(LaporanBeasiswa::class);
     }
 }

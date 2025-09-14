@@ -45,3 +45,82 @@ export interface PageProps<T> {
     auth: Auth;
     [key: string]: T;
 }
+
+
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    password: string;
+    role: 'admin' | 'validator';
+    remember_token?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Periode {
+    id: number;
+    periode: number;
+    bulan_mulai: number;
+    tahun_mulai: number;
+    bulan_selesai: number;
+    tahun_selesai: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Beasiswa {
+    id: number;
+    jenis_beasiswa: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface DokumenBukti {
+    id: number;
+    laporan_beasiswa_id: number;
+    nama_file: string;
+    path_file: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface LaporanBeasiswa {
+    id: number;
+    nama_mahasiswa: string;
+    npm: string;
+    angkatan: string;
+
+    nama_beasiswa: string;
+    beasiswa_id: number;
+    beasiswa?: Beasiswa;
+
+    periode_id?: number;
+    periode?: Periode;
+
+    penerimaan_beasiswa: string; // format: YYYY-MM-DD
+    selesai_beasiswa: string;    // format: YYYY-MM-DD
+
+    status_validasi: 'pending' | 'disetujui';
+    verified_at?: string | null;
+    verified_by?: number | null;
+    verifier?: User;
+
+    dokumen_bukti?: DokumenBukti;
+
+    created_at: string;
+    updated_at: string;
+
+    [key: string]: unknown; // Optional catch-all
+}
+
+
+export interface SummaryLaporan{
+    total_laporan: number;
+    delta_total: number;
+    belum_diverifikasi: number;
+    delta_belum_diverifikasi: number;
+    sudah_diverifikasi: number;
+    delta_sudah_diverifikasi: number;
+}

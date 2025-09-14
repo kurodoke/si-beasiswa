@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $laporan = LaporanPenerima::where('npm', $user->npm)->whereNull('user_id')->first();
+        $laporan = LaporanBeasiswa::where('npm', $user->npm)->whereNull('user_id')->first();
         if ($laporan) {
             $laporan->user_id = $user->id;
             $laporan->nama_mahasiswa = $user->name; 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LaporanPenerima;
+use App\Models\LaporanBeasiswa;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
