@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils';
 import dokumen from '@/routes/admin/dokumen';
 import { LaporanBeasiswa } from '@/types';
+import { formatDate, getNamaBulan } from '@/utils/date';
 import { Form } from '@inertiajs/react';
 import { CircleCheckIcon, Clock4Icon, DownloadIcon, LoaderCircle, PointerIcon } from 'lucide-react';
 
@@ -55,22 +56,6 @@ export function InputIcon({ title, id, data, icon, className }: InputIconProps) 
     );
 }
 
-function formatDate(dateString?: string | null) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
-
-function getNamaBulan(bulan?: number): string {
-    const bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-    if (!bulan || bulan < 1 || bulan > 12) return '-';
-    return bulanIndo[bulan - 1];
-}
 
 export function DialogEdit({
     data,

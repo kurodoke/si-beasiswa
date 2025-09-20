@@ -20,7 +20,7 @@ class BeasiswaController extends Controller
                 return [
                     'id' => $group->first()->id,
                     'jenis_beasiswa' => $group->first()->jenis_beasiswa,
-                    'jumlah_beasiswa' => $group->sum('laporan_beasiswa_count'),
+                    'jumlah_laporan' => $group->sum('laporan_beasiswa_count'),
                 ];
             })
             ->values();

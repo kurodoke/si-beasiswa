@@ -38,14 +38,19 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { DialogCreate } from '../../dialog-form/jenis-beasiswa/dialog-form-create';
-import { DialogDelete } from '../../dialog-form/jenis-beasiswa/dialog-form-delete';
-import { DialogEdit } from '../../dialog-form/jenis-beasiswa/dialog-form-update';
+import { getNamaBulan } from '@/utils/date';
+import { DialogCreate } from '../../dialog-form/periode/dialog-form-create';
+import { DialogDelete } from '../../dialog-form/periode/dialog-form-delete';
+import { DialogEdit } from '../../dialog-form/periode/dialog-form-update';
 import { Input } from '../../ui/input';
 
 export const schema = z.object({
     id: z.number(),
-    jenis_beasiswa: z.string(),
+    periode: z.string(),
+    bulan_mulai: z.string(),
+    tahun_mulai: z.string(),
+    bulan_selesai: z.string(),
+    tahun_selesai: z.string(),
     jumlah_laporan: z.number(),
 });
 
@@ -97,10 +102,25 @@ const createColumns = (handlers: {
         cell: ({ row }) => <DragHandle id={row.original.id} />,
     },
     {
-        accessorKey: 'jenis_beasiswa',
-        header: 'Jenis Beasiswa',
-        cell: ({ row }) => <div className="w-min-32 w-full font-medium">{row.original.jenis_beasiswa}</div>,
+        accessorKey: 'periode',
+        header: 'Periode',
+        cell: ({ row }) => <div className="w-min-32 w-full font-medium">Periode ke-{row.original.periode}</div>,
         enableHiding: false,
+    },
+    {
+        accessorKey: 'periode_mulai_selesai',
+        header: 'Periode Mulai - Selesai',
+        cell: ({ row }) => (
+            <div className="w-min-32 w-full font-normal">
+                <Badge variant={"secondary"}>
+                    {getNamaBulan(Number(row.original.bulan_mulai))} / {row.original.tahun_mulai}
+                </Badge>{' '}
+                <span className='font-bold'>-</span>{' '}
+                <Badge>
+                    {getNamaBulan(Number(row.original.bulan_selesai))} / {row.original.tahun_selesai}
+                </Badge>
+            </div>
+        ),
     },
     {
         accessorKey: 'jumlah_laporan',
@@ -152,9 +172,13 @@ const createColumns = (handlers: {
 export function DataTable({ data: initialData, auth }: { data: z.infer<typeof schema>[]; auth: any }) {
     const [openDialogUpdate, setOpenDialogUpdate] = React.useState(false);
     const [openDialogDelete, setOpenDialogDelete] = React.useState(false);
-    const [selectedJenisBeasiswa, setSelectedJenisBeasiswa] = React.useState<z.infer<typeof schema>>({
+    const [selectedPeriode, setSelectedPeriode] = React.useState<z.infer<typeof schema>>({
         id: 0,
-        jenis_beasiswa: '',
+        periode: '',
+        bulan_mulai: '',
+        tahun_mulai: '',
+        bulan_selesai: '',
+        tahun_selesai: '',
         jumlah_laporan: 0,
     });
 
@@ -179,11 +203,11 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
         () =>
             createColumns({
                 onEdit: (data) => {
-                    setSelectedJenisBeasiswa(data);
+                    setSelectedPeriode(data);
                     setOpenDialogUpdate(true);
                 },
                 onDelete: (data) => {
-                    setSelectedJenisBeasiswa(data);
+                    setSelectedPeriode(data);
                     setOpenDialogDelete(true);
                 },
                 authUserId: auth.user.id,
@@ -238,9 +262,9 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                         Search
                     </Label>
                     <Input
-                        placeholder="Cari Jenis Beasiswa..."
-                        value={(table.getColumn('jenis_beasiswa')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('jenis_beasiswa')?.setFilterValue(event.target.value)}
+                        placeholder="Cari Periode..."
+                        value={(table.getColumn('periode')?.getFilterValue() as string) ?? ''}
+                        onChange={(event) => table.getColumn('periode')?.setFilterValue(event.target.value)}
                         className="h-8 pl-7"
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
@@ -362,8 +386,8 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                     </div>
                 </div>
             </TabsContent>
-            <DialogEdit data={selectedJenisBeasiswa} open={openDialogUpdate} setOpen={setOpenDialogUpdate} />
-            <DialogDelete data={selectedJenisBeasiswa} open={openDialogDelete} setOpen={setOpenDialogDelete} />
+            <DialogEdit data={selectedPeriode} open={openDialogUpdate} setOpen={setOpenDialogUpdate} />
+            <DialogDelete data={selectedPeriode} open={openDialogDelete} setOpen={setOpenDialogDelete} />
         </Tabs>
     );
 }

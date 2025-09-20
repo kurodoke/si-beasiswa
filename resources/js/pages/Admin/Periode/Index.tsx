@@ -1,4 +1,4 @@
-import { DataTable } from '@/components/data-table/jenis-beasiswa/data-table';
+import { DataTable } from '@/components/data-table/periode/data-table';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
@@ -6,14 +6,18 @@ import { Auth } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-interface JenisBeasiswa {
+interface Periode {
     id: number;
-    jenis_beasiswa: string;
+    periode: string;
+    bulan_mulai: string;
+    tahun_mulai: string;
+    bulan_selesai: string;
+    tahun_selesai: string;
     jumlah_laporan: number;
 }
 
 
-export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBeasiswa> }) {    
+export default function Index({ auth, data }: { auth: Auth; data: Array<Periode> }) {    
     
     const { flash } = usePage().props as {
         flash?: {

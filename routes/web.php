@@ -4,13 +4,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application; 
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\BeasiswaController;
-use App\Http\Controllers\Admin\ProgramStudiController;
-use App\Http\Controllers\Admin\PenerimaController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\LaporanBeasiswaController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\Admin\PeriodeController;
 
 Route::middleware(['auth', 'verified'])->group(function () {    
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -41,6 +40,7 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
 
     Route::middleware('admin')->group(function () {
         Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('periode', PeriodeController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('users', UserManagementController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });
