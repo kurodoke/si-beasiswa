@@ -38,13 +38,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { DialogCreate } from '../../dialog-form/jenis-beasiswa/dialog-form-create';
-import { DialogDelete } from '../../dialog-form/jenis-beasiswa/dialog-form-delete';
-import { DialogEdit } from '../../dialog-form/jenis-beasiswa/dialog-form-update';
+import { DialogCreate } from '../../dialog-form/beasiswa/dialog-form-create';
+import { DialogDelete } from '../../dialog-form/beasiswa/dialog-form-delete';
+import { DialogEdit } from '../../dialog-form/beasiswa/dialog-form-update';
 import { Input } from '../../ui/input';
 
 export const schema = z.object({
     id: z.number(),
+    nama_beasiswa: z.string(),
     jenis_beasiswa: z.string(),
     jumlah_laporan: z.number(),
 });
@@ -95,6 +96,12 @@ const createColumns = (handlers: {
         id: 'drag',
         header: () => null,
         cell: ({ row }) => <DragHandle id={row.original.id} />,
+    },
+    {
+        accessorKey: 'nama_beasiswa',
+        header: 'Nama Beasiswa',
+        cell: ({ row }) => <div className="w-min-32 w-full font-medium">{row.original.nama_beasiswa}</div>,
+        enableHiding: false,
     },
     {
         accessorKey: 'jenis_beasiswa',
@@ -154,6 +161,7 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
     const [openDialogDelete, setOpenDialogDelete] = React.useState(false);
     const [selectedJenisBeasiswa, setSelectedJenisBeasiswa] = React.useState<z.infer<typeof schema>>({
         id: 0,
+        nama_beasiswa: '',
         jenis_beasiswa: '',
         jumlah_laporan: 0,
     });
@@ -238,9 +246,9 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                         Search
                     </Label>
                     <Input
-                        placeholder="Cari Jenis Beasiswa..."
-                        value={(table.getColumn('jenis_beasiswa')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('jenis_beasiswa')?.setFilterValue(event.target.value)}
+                        placeholder="Cari Beasiswa..."
+                        value={(table.getColumn('nama_beasiswa')?.getFilterValue() as string) ?? ''}
+                        onChange={(event) => table.getColumn('nama_beasiswa')?.setFilterValue(event.target.value)}
                         className="h-8 pl-7"
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />

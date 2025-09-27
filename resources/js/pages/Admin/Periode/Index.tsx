@@ -40,7 +40,7 @@ export default function Index({ auth, data }: { auth: Auth; data: Array<Periode>
         }
     }, [flash?.success, flash?.error, errors]);
     return (
-        <AppLayout breadcrumbs={[{ title: 'Managemen Jenis Beasiswa', href: users.index.url() }]}>
+        <AppLayout breadcrumbs={[{ title: 'Manajemen Jenis Beasiswa', href: users.index.url() }]}>
             {show && message && Object.keys(errors).length == 0 && (
                 <FlashAlert
                     key={Date.now()}

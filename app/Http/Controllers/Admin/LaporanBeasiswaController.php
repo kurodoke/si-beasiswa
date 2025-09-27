@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LaporanBeasiswa;
 use Inertia\Inertia;
 use App\Models\Periode;
+use App\Models\Beasiswa;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanBeasiswaController extends Controller
@@ -104,9 +105,19 @@ class LaporanBeasiswaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(string $periode_id, string $tahun_mulai)
     {
-        //
+        
+        $periode = Periode::where('periode', $periode_id)
+            ->where('tahun_mulai', $tahun_mulai)
+            ->firstOrFail();
+
+        $beasiswa = Beasiswa::all();
+
+        return Inertia::render('LaporanBeasiswa/Create', [
+            'periode' => $periode,
+            'beasiswa' => $beasiswa
+        ]);
     }
 
     /**
@@ -114,8 +125,48 @@ class LaporanBeasiswaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        
+        // Validasi input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'angkatan' => 'required|digits:4',
+            'npm'=> ['required', 'regex:/^\d{6}$/'],
+            'np_hp'=> ['required', 'regex:/^\d{9,11}$/'],
+            'beasiswa' => 'required|exists:beasiswas,id',
+            'penerimaan' => 'required|date_format:Y-m-01',
+            'selesai' => 'required|date_format:Y-m-01|after_or_equal:penerimaan',
+            'dokumen_bukti' => 'required|file|mimes:pdf|max:2048',
+            'periode_id' => 'required|exists:periodes,id',
+        ]);
+
+        $laporan = LaporanBeasiswa::create([
+            'nama_mahasiswa' => $validated['name'],
+            'angkatan' => $validated['angkatan'],
+            'npm' => 'G1A' . $validated['npm'],
+            'no_hp' => '+62' . $validated['np_hp'], 
+            'beasiswa_id' => $validated['beasiswa'],
+            'periode_id' => $validated['periode_id'],
+            'penerimaan_beasiswa' => $validated['penerimaan'],
+            'selesai_beasiswa' => $validated['selesai'],
+            'status_validasi' => 'pending',
+        ]);
+
+        if ($request->hasFile('dokumen_bukti')) {
+            $file = $request->file('dokumen_bukti');
+            $path = "storage/" . $file->store('dokumen_bukti', 'public');
+
+            $filename = basename($path);
+
+            $laporan->dokumenBukti()->create([
+                'nama_file' => $filename,
+                'path_file' => $path,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Laporan Beasiswa berhasil dikirim, silahkan menunggu untuk diverifikasi. Terimakasih telah mengisi formulir ini.');
     }
+
 
     /**
      * Display the specified resource.

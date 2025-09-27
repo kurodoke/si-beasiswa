@@ -1,4 +1,4 @@
-import { DataTable } from '@/components/data-table/jenis-beasiswa/data-table';
+import { DataTable } from '@/components/data-table/beasiswa/data-table';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
@@ -8,6 +8,7 @@ import React from 'react';
 
 interface JenisBeasiswa {
     id: number;
+    nama_beasiswa: string;
     jenis_beasiswa: string;
     jumlah_laporan: number;
 }
@@ -36,7 +37,7 @@ export default function Index({ auth, data }: { auth: Auth; data: Array<JenisBea
         }
     }, [flash?.success, flash?.error, errors]);
     return (
-        <AppLayout breadcrumbs={[{ title: 'Managemen Jenis Beasiswa', href: users.index.url() }]}>
+        <AppLayout breadcrumbs={[{ title: 'Manajemen Jenis Beasiswa', href: users.index.url() }]}>
             {show && message && Object.keys(errors).length == 0 && (
                 <FlashAlert
                     key={Date.now()}

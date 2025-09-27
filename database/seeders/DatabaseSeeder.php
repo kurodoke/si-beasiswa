@@ -39,17 +39,20 @@ class DatabaseSeeder extends Seeder
 
         // Beasiswa
         Beasiswa::create([
+            'nama_beasiswa' => 'Beasiswa Oxford',
             'jenis_beasiswa' => 'Internasional',
         ]);
         Beasiswa::create([
+            'nama_beasiswa' => 'Beasiswa Harvard',
             'jenis_beasiswa' => 'Nasional',
         ]);
         Beasiswa::create([
+            'nama_beasiswa' => 'Beasiswa UNIB',
             'jenis_beasiswa' => 'Regional',
         ]);
 
         Periode::create([
-            'periode' => 57,
+            'periode' => "Ganjil",
             'bulan_mulai' => 4,
             'tahun_mulai' => 2025,
             'bulan_selesai' => 9,
@@ -57,11 +60,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Periode::create([
-            'periode' => 56,
-            'bulan_mulai' => 4,
-            'tahun_mulai' => 2024,
-            'bulan_selesai' => 9,
-            'tahun_selesai' => 2024,
+            'periode' => "Genap",
+            'bulan_mulai' => 10,
+            'tahun_mulai' => 2025,
+            'bulan_selesai' => 3,
+            'tahun_selesai' => 2026,
         ]);
 
         // Laporan Penerima
@@ -69,7 +72,7 @@ class DatabaseSeeder extends Seeder
             'nama_mahasiswa' => 'John Doe',
             'npm' => '12345678',
             'angkatan' => '2023',
-            'nama_beasiswa' => 'Beasiswa Internasional',
+            'no_hp' => '087654321',
             'periode_id' => 1,
             'selesai_beasiswa' => '2023-12-01',
             'penerimaan_beasiswa' => '2023-01-01',
@@ -81,7 +84,7 @@ class DatabaseSeeder extends Seeder
             'nama_mahasiswa' => 'HAHAHAHA',
             'npm' => '12345678',
             'angkatan' => '2023',
-            'nama_beasiswa' => 'Beasiswa BNI',
+            'no_hp' => '1234567890',
             'periode_id' => 2,
             'selesai_beasiswa' => '2023-12-01',
             'penerimaan_beasiswa' => '2023-01-01',

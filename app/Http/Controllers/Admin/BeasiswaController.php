@@ -12,20 +12,21 @@ class BeasiswaController extends Controller
 {
     public function index()
     {
-        $beasiswa_laporan = Beasiswa::select('id', 'jenis_beasiswa')
+        $beasiswa_laporan = Beasiswa::select('id', 'nama_beasiswa', 'jenis_beasiswa')
             ->withCount('laporanBeasiswa')
             ->get()
-            ->groupBy('jenis_beasiswa')
+            ->groupBy('nama_beasiswa')
             ->map(function ($group) {
                 return [
                     'id' => $group->first()->id,
+                    'nama_beasiswa' => $group->first()->nama_beasiswa,
                     'jenis_beasiswa' => $group->first()->jenis_beasiswa,
                     'jumlah_laporan' => $group->sum('laporan_beasiswa_count'),
                 ];
             })
             ->values();
 
-        return Inertia::render('Admin/JenisBeasiswa/Index', [
+        return Inertia::render('Admin/Beasiswa/Index', [
             'data' => $beasiswa_laporan,
         ]);
     }
@@ -33,6 +34,7 @@ class BeasiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'nama_beasiswa' => 'required|string|max:255',
             'jenis_beasiswa' => 'required|string|max:255',
         ]);
 
@@ -44,6 +46,7 @@ class BeasiswaController extends Controller
     public function update(Request $request, Beasiswa $beasiswa)
     {
         $request->validate([
+            'nama_beasiswa' => 'required|string|max:255',
             'jenis_beasiswa' => 'required|string|max:255',
         ]);
 

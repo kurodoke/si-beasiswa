@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 url: users.index.url(),
                 icon: ShieldCheckIcon,
             }, {
-                title: 'Manajemen Jenis Beasiswa',
+                title: 'Manajemen Beasiswa',
                 url: beasiswa.index().url,
                 icon: FilePlus2Icon,
             }, {
@@ -93,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={navMainItems} />
-                <NavSecondary items={navSecondaryItems} className="mt-auto" />
+                {/* <NavSecondary items={navSecondaryItems} className="mt-auto" /> */}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={user} />

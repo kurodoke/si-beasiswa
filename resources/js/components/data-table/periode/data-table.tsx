@@ -27,7 +27,17 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, GripVerticalIcon, MoreVerticalIcon, Search } from 'lucide-react';
+import {
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    ChevronsLeftIcon,
+    ChevronsRightIcon,
+    FileWarningIcon,
+    ForwardIcon,
+    GripVerticalIcon,
+    MoreVerticalIcon,
+    Search,
+} from 'lucide-react';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -38,6 +48,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import laporan from '@/routes/laporan';
 import { getNamaBulan } from '@/utils/date';
 import { DialogCreate } from '../../dialog-form/periode/dialog-form-create';
 import { DialogDelete } from '../../dialog-form/periode/dialog-form-delete';
@@ -104,7 +115,11 @@ const createColumns = (handlers: {
     {
         accessorKey: 'periode',
         header: 'Periode',
-        cell: ({ row }) => <div className="w-min-32 w-full font-medium">Periode ke-{row.original.periode}</div>,
+        cell: ({ row }) => (
+            <div className="w-min-32 w-full font-medium">
+                Periode {row.original.periode} - {row.original.tahun_mulai}
+            </div>
+        ),
         enableHiding: false,
     },
     {
@@ -112,16 +127,63 @@ const createColumns = (handlers: {
         header: 'Periode Mulai - Selesai',
         cell: ({ row }) => (
             <div className="w-min-32 w-full font-normal">
-                <Badge variant={"secondary"}>
+                <Badge variant={'secondary'}>
                     {getNamaBulan(Number(row.original.bulan_mulai))} / {row.original.tahun_mulai}
                 </Badge>{' '}
-                <span className='font-bold'>-</span>{' '}
+                <span className="font-bold">-</span>{' '}
                 <Badge>
                     {getNamaBulan(Number(row.original.bulan_selesai))} / {row.original.tahun_selesai}
                 </Badge>
             </div>
         ),
     },
+    {
+        accessorKey: 'link_pendaftaran_periode',
+        header: 'Link Pendaftaran Periode',
+        cell: ({ row }) => {
+            const dateNow = new Date();
+
+            const tahunMulai = Number(row.original.tahun_mulai);
+            const bulanMulai = Number(row.original.bulan_mulai) - 1;
+            const tahunSelesai = Number(row.original.tahun_selesai);
+            const bulanSelesai = Number(row.original.bulan_selesai) - 1;
+
+            const dateMulai = new Date(tahunMulai, bulanMulai, 1);
+            const dateSelesai = new Date(tahunSelesai, bulanSelesai + 1, 0); // Hari terakhir bulan selesai
+
+            const isInPeriode = dateNow >= dateMulai && dateNow <= dateSelesai;
+
+            const handleCopy = () => {
+                const path = laporan.create([row.original.periode ,row.original.tahun_mulai]).url;
+                const fullLink = `${window.location.origin}${path}`;
+
+                navigator.clipboard
+                    .writeText(fullLink)
+                    .then(() => {
+                        alert('Link berhasil disalin!');
+                    })
+                    .catch(() => {
+                        alert('Gagal menyalin link.');
+                    });
+            };
+
+            return (
+                <div className="w-32">
+                    <Button
+                        variant="link"
+                        size={'sm'}
+                        onClick={handleCopy}
+                        disabled={!isInPeriode}
+                        className={`text-sm shadow-none ${isInPeriode ? '' : 'cursor-not-allowed bg-accent text-accent-foreground'}`}
+                    >
+                        {isInPeriode ? <ForwardIcon className="h-4 w-4" /> : <FileWarningIcon className="h-4 w-4" />}
+                        {isInPeriode ? 'Bagikan Link' : 'Sudah ditutup'}
+                    </Button>
+                </div>
+            );
+        },
+    },
+
     {
         accessorKey: 'jumlah_laporan',
         header: 'Jumlah Laporan',
@@ -238,6 +300,9 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
+        globalFilterFn: (row, columnId, filterValue) => {
+            return row.original.tahun_mulai.toString().includes(filterValue.toLowerCase());
+        },
     });
 
     function handleDragEnd(event: DragEndEvent) {
@@ -262,9 +327,9 @@ export function DataTable({ data: initialData, auth }: { data: z.infer<typeof sc
                         Search
                     </Label>
                     <Input
-                        placeholder="Cari Periode..."
-                        value={(table.getColumn('periode')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('periode')?.setFilterValue(event.target.value)}
+                        placeholder="Cari Periode Berdasarkan Tahun..."
+                        value={table.getState().globalFilter ?? ''}
+                        onChange={(event) => table.setGlobalFilter(event.target.value)}
                         className="h-8 pl-7"
                     />
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />

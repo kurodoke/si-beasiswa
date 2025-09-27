@@ -59,9 +59,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Periode } from '@/types';
 import { DialogDelete } from '../../dialog-form/laporan-beasiswa/dialog-form-delete';
 import { Input } from '../../ui/input';
-import { Periode } from '@/types';
 
 export const schema = z.object({
     id: z.number().int(),
@@ -78,6 +78,7 @@ export const schema = z.object({
     verified_by: z.optional(z.number().int()),
     periode: z.optional(
         z.object({
+            id: z.number().int(),
             periode: z.number().int(),
             tahun_mulai: z.string(),
             bulan_mulai: z.string(),
@@ -85,7 +86,7 @@ export const schema = z.object({
             bulan_selesai: z.string(),
         }),
     ),
-    beasiswa: z.optional(z.object({ id: z.number().int(), jenis_beasiswa: z.string() })),
+    beasiswa: z.optional(z.object({ id: z.number().int(), nama_beasiswa: z.string(), jenis_beasiswa: z.string() })),
     verifier: z.optional(z.object({ id: z.number().int(), name: z.string() })),
     dokumenBukti: z.optional(z.object({ id: z.number().int(), nama_file: z.string(), path_file: z.string() })),
     created_at: z.string().datetime(),
@@ -160,7 +161,7 @@ const createColumns = (handlers: {
     {
         accessorKey: 'nama_beasiswa',
         header: 'Beasiswa',
-        cell: ({ row }) => <div className="w-min-32 font-normal">{row.original.nama_beasiswa}</div>,
+        cell: ({ row }) => <div className="w-min-32 font-normal">{row.original.beasiswa?.nama_beasiswa}</div>,
     },
     {
         accessorKey: 'periode',
@@ -170,7 +171,10 @@ const createColumns = (handlers: {
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Badge variant="outline" className="px-1.5 text-muted-foreground">
-                            Periode <span className="text-md font-bold">ke-{row.original.periode?.periode}</span>
+                            Periode{' '}
+                            <span className="text-md font-bold">
+                                {row.original.periode?.periode} {row.original.periode?.tahun_mulai}
+                            </span>
                         </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -182,7 +186,7 @@ const createColumns = (handlers: {
         ),
         enableHiding: false,
         filterFn: (row, id, value) => {
-            return row.original.periode?.periode === Number(value);
+            return row.original.periode?.id === Number(value);
         },
     },
     {
@@ -255,6 +259,7 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
         updated_at: new Date().toISOString(), // ISO string datetime
 
         periode: {
+            id: 0,
             periode: 0,
             tahun_mulai: '',
             bulan_mulai: '',
@@ -264,6 +269,7 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
 
         beasiswa: {
             id: 0,
+            nama_beasiswa: '',
             jenis_beasiswa: '',
         },
 
@@ -372,6 +378,7 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                 </div>
                 <div className="flex items-center justify-end gap-2">
+                    {/* TODO: FILTER BERDASARKAN NAMA BEASISWA */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm">
@@ -386,13 +393,15 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
                                 <DropdownMenuCheckboxItem
                                     key={'filter-periode-' + periode.id}
                                     className="capitalize"
-                                    checked={periode.periode === table.getColumn('periode')?.getFilterValue()}
+                                    checked={periode.id === table.getColumn('periode')?.getFilterValue()}
                                     onCheckedChange={(checked) => {
-                                        table.getColumn('periode')?.setFilterValue(checked ? periode.periode : undefined);
+                                        table.getColumn('periode')?.setFilterValue(checked ? periode.id : undefined);
                                     }}
                                 >
                                     <div className="flex flex-col">
-                                        <p className="font-bold">Periode ke-{periode.periode}</p>
+                                        <p className="font-bold">
+                                            Periode {periode.periode} - {periode.tahun_mulai}
+                                        </p>
                                         <p className="text-xs text-muted-foreground">
                                             {periode.bulan_mulai}/{periode.tahun_mulai} - {periode.bulan_selesai}/{periode.tahun_selesai}
                                         </p>
@@ -516,7 +525,7 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
                     </div>
                 </div>
             </TabsContent>
-            <DialogEdit data={selectedLaporan} open={openDialogUpdate} setOpen={setOpenDialogUpdate} userRole={auth.user.role}/>
+            <DialogEdit data={selectedLaporan} open={openDialogUpdate} setOpen={setOpenDialogUpdate} userRole={auth.user.role} />
             <DialogDelete data={selectedLaporan} open={openDialogDelete} setOpen={setOpenDialogDelete} />
         </Tabs>
     );

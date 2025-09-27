@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form } from '@inertiajs/react';
 import { LoaderCircle, PlusIcon } from 'lucide-react';
 import React from 'react';
@@ -25,6 +26,8 @@ export function DialogCreate() {
     });
 
     const [rangeError, setRangeError] = React.useState<string | null>(null);
+
+    const [periodeValue, setPeriodeValue] = React.useState('Ganjil');
 
     return (
         <Dialog>
@@ -62,12 +65,31 @@ export function DialogCreate() {
                             <div className="grid grid-cols-4 gap-4 md:grid-cols-12">
                                 <div className="col-span-4 grid gap-1 md:col-span-12">
                                     <Label htmlFor="periode">Periode</Label>
-                                    <Input id="periode" type="number" name="periode" required min={1} />
+                                    <Input id="periode" type="text" name="periode" value={periodeValue} required hidden />
+                                    <Select
+                                    
+                                        name="periode"
+                                        required
+                                        onValueChange={(value) => {
+                                            setPeriodeValue(value);
+                                        }}
+                                    >
+                                        <SelectTrigger className='w-full' id="periode">
+                                            <SelectValue placeholder="Pilih periode" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel className='text-sidebar-accent-foreground text-center'>Periode Tidak Bisa Diubah</SelectLabel>
+                                                <SelectItem value="Ganjil">Ganjil</SelectItem>
+                                                <SelectItem value="Genap">Genap</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                     <InputError message={errors.periode} className="mt-2" />
                                 </div>
                                 <div className="col-span-4 grid gap-1 md:col-span-12">
                                     <Label htmlFor="">Rentang Periode</Label>
-                                    <MonthYearRangePicker from={range.from} to={range.to} onChange={setRange} />
+                                    <MonthYearRangePicker title='Periode' from={range.from} to={range.to} onChange={setRange} />
                                     {rangeError && <InputError message={rangeError} className="mt-2" />}
                                 </div>
 

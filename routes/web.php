@@ -31,9 +31,8 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
         ->name('dokumen.upload');
 
 
-    Route::resource('laporan', LaporanBeasiswaController::class)->only(['index', 'store', 'update', 'destroy'])->names([
+    Route::resource('laporan', LaporanBeasiswaController::class)->only(['index', 'update', 'destroy'])->names([
         'index' => 'laporanbeasiswa.index',
-        'store' => 'laporanbeasiswa.store',
         'update' => 'laporanbeasiswa.update',
         'destroy' => 'laporanbeasiswa.destroy',
     ]);
@@ -45,6 +44,8 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
     });
 });
 
+Route::get('/pendaftaran-beasiswa/periode-{id}-{tahun_mulai}', [LaporanBeasiswaController::class, 'create'])->name('laporan.create');
+Route::post('/pendaftaran-beasiswa/periode-{id}-{tahun_mulai}', [LaporanBeasiswaController::class, 'store'])->name('laporan.store');
 Route::get('/', [PublicController::class, 'index'])->name('home');
 
 

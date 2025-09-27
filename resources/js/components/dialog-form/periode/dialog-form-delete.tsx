@@ -28,7 +28,7 @@ export function DialogDelete({
                 <AlertDialogHeader>
                     <AlertDialogTitle>Apakah kamu yakin?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Ini akan menghapus periode ke-<span className="font-bold">{data.periode}</span> beserta data beasiswa berjumlah <span className='font-bold text-lg'>{data.jumlah_laporan}</span> secara permanen dan tidak dapat dikembalikan.
+                        Ini akan menghapus periode <span className="font-bold">{data.periode} - {data.tahun_mulai}</span> beserta data beasiswa berjumlah <span className='font-bold text-lg'>{data.jumlah_laporan}</span> secara permanen dan tidak dapat dikembalikan.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

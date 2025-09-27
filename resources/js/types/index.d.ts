@@ -72,6 +72,7 @@ export interface Periode {
 
 export interface Beasiswa {
     id: number;
+    nama_beasiswa: string;
     jenis_beasiswa: string;
     created_at: string;
     updated_at: string;
@@ -90,6 +91,7 @@ export interface LaporanBeasiswa {
     id: number;
     nama_mahasiswa: string;
     npm: string;
+    no_hp: string;
     angkatan: string;
 
     nama_beasiswa: string;

@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import React from 'react';
 import InputError from '../../input-error';
+import { set } from 'zod';
 
 export function DialogEdit({ data, open, setOpen }: { data: any; open: boolean; setOpen: (open: boolean) => void }) {
     const [range, setRange] = React.useState<{ from: MonthYear | null; to: MonthYear | null }>({
@@ -16,14 +18,14 @@ export function DialogEdit({ data, open, setOpen }: { data: any; open: boolean; 
     });
 
     const [rangeError, setRangeError] = React.useState<string | null>(null);
-
+    const [periodeValue, setPeriodeValue] = React.useState('Ganjil');
     React.useEffect(() => {
         setRange({
-            from: data.bulan_mulai && data.tahun_mulai ? { month: data.bulan_mulai -1 , year: data.tahun_mulai} : null,
-            to: data.bulan_selesai && data.tahun_selesai ? { month: data.bulan_selesai -1, year: data.tahun_selesai} : null,
+            from: data.bulan_mulai && data.tahun_mulai ? { month: data.bulan_mulai - 1, year: data.tahun_mulai } : null,
+            to: data.bulan_selesai && data.tahun_selesai ? { month: data.bulan_selesai - 1, year: data.tahun_selesai } : null,
         });
+        setPeriodeValue(data.periode);
     }, [data]);
-
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -51,7 +53,24 @@ export function DialogEdit({ data, open, setOpen }: { data: any; open: boolean; 
                             <div className="grid grid-cols-4 gap-4 md:grid-cols-12">
                                 <div className="col-span-4 grid gap-1 md:col-span-12">
                                     <Label htmlFor="periode">Periode</Label>
-                                    <Input id="periode" type="number" name="periode" required min={1} defaultValue={data.periode} />
+                                    <Input id="periode" type="text" name="periode" value={periodeValue} required hidden />
+                                    <Select
+                                        name="periode"
+                                        required
+                                        onValueChange={(value) => {
+                                            setPeriodeValue(value);
+                                        }}
+                                        value={periodeValue}
+                                        disabled
+                                    >
+                                        <SelectTrigger className="w-full" id="periode">
+                                            <SelectValue placeholder="Pilih periode" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Ganjil">Ganjil</SelectItem>
+                                            <SelectItem value="Genap">Genap</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <InputError message={errors.periode} className="mt-2" />
                                 </div>
                                 <div className="col-span-4 grid gap-1 md:col-span-12">

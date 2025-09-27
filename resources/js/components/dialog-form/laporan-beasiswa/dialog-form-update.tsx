@@ -56,7 +56,6 @@ export function InputIcon({ title, id, data, icon, className }: InputIconProps) 
     );
 }
 
-
 export function DialogEdit({
     data,
     open,
@@ -91,10 +90,17 @@ export function DialogEdit({
                                     {/* Informasi Mahasiswa */}
                                     <div className="grid grid-cols-4 gap-4 md:grid-cols-12">
                                         <InputLabel
-                                            className="col-span-4 md:col-span-12"
+                                            className="col-span-4 md:col-span-6"
                                             title="Nama Mahasiswa"
                                             id="nama_mahasiswa"
                                             data={data.nama_mahasiswa}
+                                        />
+
+                                        <InputLabel
+                                            className="col-span-4 md:col-span-6"
+                                            title="No Telp"
+                                            id="no_hp"
+                                            data={data.no_hp}
                                         />
                                         <InputLabel className="col-span-2 md:col-span-6" title="NPM Mahasiswa" id="npm" data={data.npm} />
                                         <InputLabel className="col-span-2 md:col-span-6" title="Angkatan" id="angkatan" data={data.angkatan} />
@@ -108,7 +114,7 @@ export function DialogEdit({
                                             className="col-span-2 md:col-span-6"
                                             title="Nama Beasiswa"
                                             id="nama_beasiswa"
-                                            data={data.nama_beasiswa}
+                                            data={data.beasiswa?.nama_beasiswa ?? '-'}
                                         />
                                         <InputLabel
                                             className="col-span-2 md:col-span-6"
@@ -139,7 +145,12 @@ export function DialogEdit({
                                                 <div className="col-span-2 md:col-span-6">
                                                     <InputIcon
                                                         title="Periode Pelaporan"
-                                                        data={'Periode ' + (data.periode?.periode?.toString() ?? '-')}
+                                                        data={
+                                                            'Periode ' +
+                                                            (data.periode?.periode?.toString() ?? '-') +
+                                                            ' - ' +
+                                                            (data.periode?.tahun_mulai ?? '')
+                                                        }
                                                         icon={<PointerIcon className="h-4 w-4 text-blue-400 dark:text-blue-400" />}
                                                     />
                                                 </div>
@@ -190,7 +201,7 @@ export function DialogEdit({
                                             <div className="flex w-full items-center gap-2 px-0 sm:px-2">
                                                 {data.dokumen_bukti?.path_file && (
                                                     <Button
-                                                        type='button'
+                                                        type="button"
                                                         tabIndex={-1}
                                                         className="group min-h-15 w-full border-2 border-dashed bg-background text-sm text-foreground hover:bg-accent hover:text-accent-foreground focus:ring-0 focus:outline-none sm:min-h-20"
                                                         onClick={() =>

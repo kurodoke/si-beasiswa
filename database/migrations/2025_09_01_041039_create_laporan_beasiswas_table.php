@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('nama_mahasiswa');
             $table->string('npm');
             $table->string('angkatan');
+            $table->string('no_hp');
 
             // Relasi ke beasiswa
-            $table->string('nama_beasiswa');
+            // $table->string('nama_beasiswa');
             $table->foreignId('beasiswa_id')->constrained()->onDelete('cascade');
 
             // Periode penerimaan dan selesai (gunakan tanggal 1 sebagai default)

@@ -15,9 +15,10 @@ interface MonthYearRangePickerProps {
     from: MonthYear | null;
     to: MonthYear | null;
     onChange: (range: { from: MonthYear | null; to: MonthYear | null }) => void;
+    title: string
 }
 
-export const MonthYearRangePicker: React.FC<MonthYearRangePickerProps> = ({ from, to, onChange }) => {
+export const MonthYearRangePicker: React.FC<MonthYearRangePickerProps> = ({ from, to, onChange, title}) => {
     const [openPicker, setOpenPicker] = React.useState<'from' | 'to' | null>(null);
     const [yearView, setYearView] = React.useState<number>(from?.year || new Date().getFullYear());
 
@@ -51,7 +52,7 @@ export const MonthYearRangePicker: React.FC<MonthYearRangePickerProps> = ({ from
             <Popover open={openPicker === 'from'} onOpenChange={() => setOpenPicker(openPicker === 'from' ? null : 'from')}>
                 <PopoverTrigger asChild>
                     <Button variant="outline">
-                        <CalendarArrowDown className="mr-1 h-4 w-4" />Mulai Periode : {formatLabel(from)}
+                        <CalendarArrowDown className="mr-1 h-4 w-4" />Mulai {title} : {formatLabel(from)}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-4">
@@ -68,7 +69,7 @@ export const MonthYearRangePicker: React.FC<MonthYearRangePickerProps> = ({ from
             >
                 <PopoverTrigger asChild>
                     <Button variant="outline" disabled={!from}>
-                        <CalendarArrowUp className="mr-1 h-4 w-4" />Akhir Periode : {formatLabel(to)}
+                        <CalendarArrowUp className="mr-1 h-4 w-4" />Akhir {title} : {formatLabel(to)}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-4">

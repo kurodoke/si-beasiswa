@@ -36,9 +36,24 @@ class PeriodeController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'periode' => 'required|string|max:255',
+            'periode' => 'required|in:Ganjil,Genap',
+            'bulan_mulai' => 'required|integer|min:1|max:12',
+            'tahun_mulai' => 'required|integer|min:2000',
+            'bulan_selesai' => 'required|integer|min:1|max:12',
+            'tahun_selesai' => 'required|integer|min:2000',
         ]);
+
+        $exists = Periode::where('periode', $request->periode)
+                    ->where('tahun_mulai', $request->tahun_mulai)
+                    ->exists();
+
+        if ($exists) {
+            return back()->withInput()->withErrors([
+                'periode' => 'Periode dan Tahun tersebut sudah ada.',
+            ]);
+        }
 
         Periode::create($request->all());
 
@@ -47,10 +62,33 @@ class PeriodeController extends Controller
     
     public function update(Request $request, Periode $periode)
     {
+        // Validasi awal
         $request->validate([
-            'periode' => 'required|string|max:255',
+            'periode' => 'required|in:Ganjil,Genap',
+            'bulan_mulai' => 'required|integer|min:1|max:12',
+            'tahun_mulai' => 'required|integer|min:2000',
+            'bulan_selesai' => 'required|integer|min:1|max:12',
+            'tahun_selesai' => 'required|integer|min:2000',
         ]);
 
+        // Jika nilai periode atau tahun_mulai berubah, baru lakukan pengecekan
+        if (
+            $request->periode !== $periode->periode ||
+            $request->tahun_mulai != $periode->tahun_mulai
+        ) {
+            $exists = Periode::where('periode', $request->periode)
+                        ->where('tahun_mulai', $request->tahun_mulai)
+                        ->where('id', '!=', $periode->id)
+                        ->exists();
+
+            if ($exists) {
+                return back()->withInput()->withErrors([
+                    'periode' => 'Kombinasi Periode dan Tahun Mulai sudah ada.',
+                ]);
+            }
+        }
+
+        // Update data
         $periode->update($request->all());
 
         return to_route('admin.periode.index')->with('success', 'Data berhasil diperbarui.');
