@@ -7,6 +7,7 @@ use App\Models\Beasiswa;
 use App\Models\LaporanBeasiswa;
 use App\Models\DokumenBukti;
 use App\Models\Periode;
+use App\Models\Berita;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -105,5 +106,39 @@ class DatabaseSeeder extends Seeder
             'nama_file' => 'SBUtoRVX6JmZVvqNSz9pIpQmuCyUWoi9bZ2HEMfi.pdf',
             'path_file' => 'storage/dokumen_bukti/SBUtoRVX6JmZVvqNSz9pIpQmuCyUWoi9bZ2HEMfi.pdf',
         ]);
+
+        Berita::create([
+            'judul' => 'Berita 1',
+            'konten' => json_encode([
+                "root" => [
+                    "children" => [
+                        [
+                            "children" => [
+                                [
+                                    "detail" => 0,
+                                    "format" => 0,
+                                    "mode" => "normal",
+                                    "style" => "",
+                                    "text" => "Hello world",
+                                    "type" => "text",
+                                    "version" => 1,
+                                ]
+                            ],
+                            "direction" => null,
+                            "format" => "",
+                            "indent" => 0,
+                            "type" => "paragraph",
+                            "version" => 1,
+                        ]
+                    ],
+                    "direction" => null,
+                    "format" => "",
+                    "indent" => 0,
+                    "type" => "root",
+                    "version" => 1,
+                ]
+            ])
+        ]);
+
     }
 }

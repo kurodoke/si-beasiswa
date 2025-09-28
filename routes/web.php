@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\LaporanBeasiswaController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\Admin\PeriodeController;
+use App\Http\Controllers\Admin\BeritaController;
 
 Route::middleware(['auth', 'verified'])->group(function () {    
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -41,6 +42,13 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
         Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('periode', PeriodeController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('users', UserManagementController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+        Route::get('/berita/create', [BeritaController::class, 'create'])->name('berita.create');
+        Route::post('/berita/create', [BeritaController::class, 'store'])->name('berita.store');
+        Route::get('/berita/{berita}', [BeritaController::class, 'show'])->name('berita.show');
+        Route::post('/berita/{berita}', [BeritaController::class, 'update'])->name('berita.update');
+        Route::delete('/berita/{berita}', [BeritaController::class, 'destroy'])->name('berita.destroy');
     });
 });
 

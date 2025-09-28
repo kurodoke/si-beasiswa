@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import * as React from 'react';
 
-import { BookOpenCheckIcon, BookOpenIcon, CalendarHeartIcon, Command, FilePlus2Icon, GraduationCapIcon, LayoutDashboardIcon, SettingsIcon, ShieldCheckIcon } from 'lucide-react';
+import { BookOpenCheckIcon, BookOpenIcon, CalendarHeartIcon, Command, FilePlus2Icon, GraduationCapIcon, LayoutDashboardIcon, NewspaperIcon, SettingsIcon, ShieldCheckIcon } from 'lucide-react';
 
 import { NavItem, NavMain } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
@@ -14,6 +14,7 @@ import profile from '@/routes/profile';
 import users from '@/routes/admin/users';
 import laporanbeasiswa from '@/routes/admin/laporanbeasiswa';
 import periode from '@/routes/admin/periode';
+import berita from '@/routes/admin/berita';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage().props;
@@ -68,6 +69,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: 'Manajemen Periode',
                 url: periode.index().url,
                 icon: CalendarHeartIcon,
+            },{
+                title: 'Manajemen Berita',
+                url: berita.index().url,
+                icon: NewspaperIcon,
             });
         }
     } 
