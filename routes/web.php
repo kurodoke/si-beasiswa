@@ -54,8 +54,12 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
 
 Route::get('/pendaftaran-beasiswa/periode-{id}-{tahun_mulai}', [LaporanBeasiswaController::class, 'create'])->name('laporan.create');
 Route::post('/pendaftaran-beasiswa/periode-{id}-{tahun_mulai}', [LaporanBeasiswaController::class, 'store'])->name('laporan.store');
-Route::get('/', [PublicController::class, 'index'])->name('home');
 
+
+Route::get('/', [PublicController::class, 'index'])->name('home');
+Route::get('/berita/{berita}', [PublicController::class, 'beritaDetail'])->name('beritadetail.public');
+Route::get('/beasiswa', [PublicController::class, 'beasiswa'])->name('laporan.public');
+Route::get('/berita', [PublicController::class, 'berita'])->name('berita.public');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -1,20 +1,29 @@
 import { usePage } from '@inertiajs/react';
 import * as React from 'react';
 
-import { BookOpenCheckIcon, BookOpenIcon, CalendarHeartIcon, Command, FilePlus2Icon, GraduationCapIcon, LayoutDashboardIcon, NewspaperIcon, SettingsIcon, ShieldCheckIcon } from 'lucide-react';
+import {
+    BookOpenCheckIcon,
+    BookOpenIcon,
+    CalendarHeartIcon,
+    FilePlus2Icon,
+    GraduationCapIcon,
+    LayoutDashboardIcon,
+    NewspaperIcon,
+    SettingsIcon,
+    ShieldCheckIcon,
+} from 'lucide-react';
 
 import { NavItem, NavMain } from '@/components/nav-main';
-import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import beasiswa from '@/routes/admin/beasiswa';
 import profile from '@/routes/profile';
 
-import users from '@/routes/admin/users';
+import berita from '@/routes/admin/berita';
 import laporanbeasiswa from '@/routes/admin/laporanbeasiswa';
 import periode from '@/routes/admin/periode';
-import berita from '@/routes/admin/berita';
+import users from '@/routes/admin/users';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage().props;
@@ -26,7 +35,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const navSecondaryItems = [
         {
             title: 'Settings',
-            url: profile.edit().url,             icon: SettingsIcon,
+            url: profile.edit().url,
+            icon: SettingsIcon,
         },
     ];
 
@@ -41,41 +51,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: 'Laporan Beasiswa',
                 url: laporanbeasiswa.index().url,
                 icon: GraduationCapIcon,
-                items: [
-                    {
-                        title: 'Terverifikasi',
-                        url: laporanbeasiswa.verified().url,
-                        icon: BookOpenCheckIcon,
-                    },
-                    {
-                        title: 'Belum Terverifikasi',
-                        url: laporanbeasiswa.unverified().url,
-                        icon: BookOpenIcon,
-                    },
-                ],
+                items:
+                    user && user.role === 'validator'
+                        ? [
+                              {
+                                  title: 'Terverifikasi',
+                                  url: laporanbeasiswa.verified().url,
+                                  icon: BookOpenCheckIcon,
+                              },
+                              {
+                                  title: 'Belum Terverifikasi',
+                                  url: laporanbeasiswa.unverified().url,
+                                  icon: BookOpenIcon,
+                              },
+                          ]
+                        : [],
             },
-
         ];
         if (user && user.role === 'admin') {
-            navMainItems.push({
-                title: 'Manajemen Akun',
-                url: users.index.url(),
-                icon: ShieldCheckIcon,
-            }, {
-                title: 'Manajemen Beasiswa',
-                url: beasiswa.index().url,
-                icon: FilePlus2Icon,
-            }, {
-                title: 'Manajemen Periode',
-                url: periode.index().url,
-                icon: CalendarHeartIcon,
-            },{
-                title: 'Manajemen Berita',
-                url: berita.index().url,
-                icon: NewspaperIcon,
-            });
+            navMainItems.push(
+                {
+                    title: 'Manajemen Akun',
+                    url: users.index.url(),
+                    icon: ShieldCheckIcon,
+                },
+                {
+                    title: 'Manajemen Beasiswa',
+                    url: beasiswa.index().url,
+                    icon: FilePlus2Icon,
+                },
+                {
+                    title: 'Manajemen Periode',
+                    url: periode.index().url,
+                    icon: CalendarHeartIcon,
+                },
+                {
+                    title: 'Manajemen Berita',
+                    url: berita.index().url,
+                    icon: NewspaperIcon,
+                },
+            );
         }
-    } 
+    }
 
     return (
         <Sidebar collapsible="offcanvas" {...props}>
@@ -83,9 +100,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="xl" asChild>
-                            <a target='_blank' href="https://ft.unib.ac.id/" className='flex flex-col'>
-                                <div className="flex aspect-square size-20 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground ">
-                                    <img src="/assets/images/logo.png" className="size-15"/>
+                            <a target="_blank" href="https://ft.unib.ac.id/" className="flex flex-col">
+                                <div className="flex aspect-square size-20 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
+                                    <img src="/assets/images/logo.png" className="size-15" />
                                 </div>
                                 <div className="grid flex-1 text-left text-lg leading-tight">
                                     <span className="font-medium">Universitas Bengkulu</span>

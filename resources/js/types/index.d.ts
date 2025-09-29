@@ -126,3 +126,12 @@ export interface SummaryLaporan{
     sudah_diverifikasi: number;
     delta_sudah_diverifikasi: number;
 }
+
+export interface Berita{
+    id: number;
+    judul: string;
+    thumbnail: string;
+    konten: string;
+    created_at: string;
+    updated_at: string;
+}
