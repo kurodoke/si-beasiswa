@@ -38,6 +38,10 @@ Route::middleware(['auth', 'validator'])->prefix('admin')->name('admin.')->group
         'destroy' => 'laporanbeasiswa.destroy',
     ]);
 
+    Route::get('/admin/laporan-beasiswa/export', [LaporanBeasiswaController::class, 'excel'])
+    ->name('laporanbeasiswa.excel');
+
+
     Route::middleware('admin')->group(function () {
         Route::resource('beasiswa', BeasiswaController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('periode', PeriodeController::class)->only(['index', 'store', 'update', 'destroy']);

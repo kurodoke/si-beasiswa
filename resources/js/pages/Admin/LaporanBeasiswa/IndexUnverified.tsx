@@ -2,11 +2,21 @@ import { DataTable } from '@/components/data-table/laporan-beasiswa/data-table';
 import { FlashAlert } from '@/components/flash-alert';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
-import { Auth, LaporanBeasiswa, Periode } from '@/types';
+import { Auth, Beasiswa, LaporanBeasiswa, Periode } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-export default function Index({ auth, data, periode_list }: { auth: Auth; data: Array<LaporanBeasiswa>; periode_list: Array<Periode> }) {
+export default function Index({
+    auth,
+    data,
+    periode_list,
+    beasiswa_list,
+}: {
+    auth: Auth;
+    data: Array<LaporanBeasiswa>;
+    periode_list: Array<Periode>;
+    beasiswa_list: Array<Beasiswa>;
+}) {
     const { flash } = usePage().props as {
         flash?: {
             success?: string;
@@ -42,7 +52,7 @@ export default function Index({ auth, data, periode_list }: { auth: Auth; data: 
                     duration={3000}
                 />
             )}
-            <DataTable data={data} auth={auth} periode_list={periode_list} />
+            <DataTable data={data} auth={auth} periode_list={periode_list} beasiswa_list={beasiswa_list} status="pending"/>
         </AppLayout>
     );
 }

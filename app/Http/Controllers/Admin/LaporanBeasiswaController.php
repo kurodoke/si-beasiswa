@@ -10,6 +10,9 @@ use App\Models\Periode;
 use App\Models\Beasiswa;
 use Illuminate\Support\Facades\Auth;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LaporanBeasiswaExport;
+
 class LaporanBeasiswaController extends Controller
 {
     /**
@@ -62,6 +65,8 @@ class LaporanBeasiswaController extends Controller
                 'sudah_diverifikasi' => $verified,
                 'delta_sudah_diverifikasi' => $deltaVerified,
             ],
+
+            'beasiswa_list' => Beasiswa::all(),
         ]);
     }
 
@@ -80,6 +85,7 @@ class LaporanBeasiswaController extends Controller
         return Inertia::render('Admin/LaporanBeasiswa/IndexVerified', [
             'data' => $laporan,
             'periode_list' => $periode_list,
+            'beasiswa_list' => Beasiswa::all(),
         ]);
     }
 
@@ -98,6 +104,7 @@ class LaporanBeasiswaController extends Controller
         return Inertia::render('Admin/LaporanBeasiswa/IndexUnverified', [
             'data' => $laporan,
             'periode_list' => $periode_list,
+            'beasiswa_list' => Beasiswa::all(),
         ]);
     }
 
@@ -215,5 +222,31 @@ class LaporanBeasiswaController extends Controller
         return redirect()->back()->with('success', 'Data berhasil dihapus.');
     }
 
-    
+
+    public function excel(Request $request)
+    {
+        $periodeIds = $request->input('periode_list', []);
+        $beasiswaIds = $request->input('beasiswa_list', []);
+        $statusValidasi = $request->input('status_validasi');
+
+        $query = LaporanBeasiswa::with(['beasiswa', 'verifier', 'dokumenBukti', 'periode']);
+
+        if (!empty($periodeIds)) {
+            $query->whereIn('periode_id', $periodeIds);
+        }
+
+        if (!empty($beasiswaIds)) {
+            $query->whereIn('beasiswa_id', $beasiswaIds);
+        }
+
+        if (!empty($statusValidasi)) {
+            $query->where('status_validasi', $statusValidasi);
+        }
+
+        $data = $query->get();
+        $filename = 'laporan_beasiswa_' . now()->format('Y_m_d_His') . '.xlsx';
+
+        return Excel::download(new LaporanBeasiswaExport($data), $filename);
+    }
+
 }

@@ -3,11 +3,23 @@ import { FlashAlert } from '@/components/flash-alert';
 import { SectionCards } from '@/components/section-card/laporan-beasiswa/section-cards';
 import AppLayout from '@/layouts/app-layout';
 import users from '@/routes/admin/users';
-import { Auth, LaporanBeasiswa, Periode, SummaryLaporan } from '@/types';
+import { Auth, Beasiswa, LaporanBeasiswa, Periode, SummaryLaporan } from '@/types';
 import { usePage } from '@inertiajs/react';
 import React from 'react';
 
-export default function Index({ auth, data, periode_list, summary }: { auth: Auth; data: Array<LaporanBeasiswa>; periode_list: Array<Periode>; summary: SummaryLaporan }) {
+export default function Index({
+    auth,
+    data,
+    periode_list,
+    summary,
+    beasiswa_list,
+}: {
+    auth: Auth;
+    data: Array<LaporanBeasiswa>;
+    periode_list: Array<Periode>;
+    summary: SummaryLaporan;
+    beasiswa_list: Array<Beasiswa>;
+}) {
     const { flash } = usePage().props as {
         flash?: {
             success?: string;
@@ -38,8 +50,8 @@ export default function Index({ auth, data, periode_list, summary }: { auth: Aut
                     duration={3000}
                 />
             )}
-            <SectionCards summary={summary}/>
-            <DataTable data={data} auth={auth} periode_list={periode_list} />
+            <SectionCards summary={summary} />
+            <DataTable data={data} auth={auth} periode_list={periode_list} beasiswa_list={beasiswa_list} status="" />
         </AppLayout>
     );
 }

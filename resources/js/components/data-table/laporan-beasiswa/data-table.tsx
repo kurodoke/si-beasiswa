@@ -39,6 +39,7 @@ import {
     GripVerticalIcon,
     MoreVerticalIcon,
     Search,
+    TableIcon,
 } from 'lucide-react';
 import * as React from 'react';
 import { z } from 'zod';
@@ -46,6 +47,17 @@ import { z } from 'zod';
 import { DialogEdit } from '@/components/dialog-form/laporan-beasiswa/dialog-form-update';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -55,11 +67,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Periode } from '@/types';
+import laporanbeasiswa from '@/routes/admin/laporanbeasiswa';
+import { Beasiswa, Periode } from '@/types';
 import { DialogDelete } from '../../dialog-form/laporan-beasiswa/dialog-form-delete';
 import { Input } from '../../ui/input';
 
@@ -237,7 +252,19 @@ const createColumns = (handlers: {
     },
 ];
 
-export function DataTable({ data: initialData, auth, periode_list }: { data: z.infer<typeof schema>[]; auth: any; periode_list: Array<Periode> }) {
+export function DataTable({
+    data: initialData,
+    auth,
+    periode_list,
+    beasiswa_list,
+    status = '',
+}: {
+    data: z.infer<typeof schema>[];
+    auth: any;
+    periode_list: Array<Periode>;
+    beasiswa_list: Array<Beasiswa>;
+    status: string;
+}) {
     const [openDialogUpdate, setOpenDialogUpdate] = React.useState(false);
     const [globalFilter, setGlobalFilter] = React.useState('');
 
@@ -359,6 +386,34 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
         }
     }
 
+    const [excelPeriode, setExcelPeriode] = React.useState<string[]>([]);
+    const toggleExcelPeriode = (id: string) => {
+        setExcelPeriode((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    };
+
+    const [excelBeasiswa, setExcelBeasiswa] = React.useState<string[]>([]);
+    const toggleExcelBeasiswa = (id: string) => {
+        setExcelBeasiswa((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    };
+
+    const handleExcelDownload = () => {
+        const params = new URLSearchParams();
+
+        if (excelPeriode.length > 0) {
+            excelPeriode.forEach((id) => params.append('periode_list[]', id));
+        }
+
+        if (excelBeasiswa.length > 0) {
+            excelBeasiswa.forEach((id) => params.append('beasiswa_list[]', id));
+        }
+
+        if (status) {
+            params.append('status_validasi', status);
+        }
+
+        window.open(laporanbeasiswa.excel().url + '?' + params.toString(), '_blank');
+    };
+
     return (
         <Tabs defaultValue="outline" className="flex w-full flex-col justify-start gap-6">
             <div className="flex items-center justify-between gap-2 px-4 lg:px-6">
@@ -378,7 +433,105 @@ export function DataTable({ data: initialData, auth, periode_list }: { data: z.i
                     <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                 </div>
                 <div className="flex items-center justify-end gap-2">
-                    {/* TODO: FILTER BERDASARKAN NAMA BEASISWA */}
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <TableIcon className="mr-2 h-4 w-4" />
+                                <span className="hidden lg:inline">Download Excel</span>
+                                <span className="lg:hidden">Excel</span>
+                                <ChevronDownIcon />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="md:max-h-[500px] md:max-w-[400px] lg:max-w-[500px]">
+                            <DialogHeader>
+                                <DialogTitle>Download Excel</DialogTitle>
+                                <DialogDescription>Mendownload data laporan beasiswa kedalam bentuk Excel.</DialogDescription>
+                            </DialogHeader>
+                            {/* Periode */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="col-span-1">
+                                    <p className="mb-2 font-bold">Periode</p>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-between">
+                                                {excelPeriode.length > 0 ? `${excelPeriode.length} dipilih` : 'Pilih Periode'}
+                                                <ChevronDownIcon />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-2" align="start">
+                                            <ScrollArea className="">
+                                                <div className="flex flex-col gap-2">
+                                                    {periode_list.map((periode) => {
+                                                        const id = periode.id.toString();
+                                                        return (
+                                                            <label key={id} className="flex cursor-pointer items-start gap-2">
+                                                                <Checkbox
+                                                                    id={id}
+                                                                    checked={excelPeriode.includes(id)}
+                                                                    onCheckedChange={() => toggleExcelPeriode(id)}
+                                                                />
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-semibold">
+                                                                        Periode {periode.periode} - {periode.tahun_mulai}
+                                                                    </span>
+                                                                    <span className="text-sm text-muted-foreground">
+                                                                        {periode.bulan_mulai}/{periode.tahun_mulai} - {periode.bulan_selesai}/
+                                                                        {periode.tahun_selesai}
+                                                                    </span>
+                                                                </div>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </ScrollArea>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                {/* Beasiswa */}
+                                <div className="col-span-1">
+                                    <p className="mb-2 font-bold">Beasiswa</p>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-between">
+                                                {excelBeasiswa.length > 0 ? `${excelBeasiswa.length} dipilih` : 'Pilih Beasiswa'}
+                                                <ChevronDownIcon />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-2" align="start">
+                                            <ScrollArea className="">
+                                                <div className="flex flex-col gap-2">
+                                                    {beasiswa_list.map((beasiswa) => {
+                                                        const id = beasiswa.id.toString();
+                                                        return (
+                                                            <label key={id} className="flex cursor-pointer items-start gap-2">
+                                                                <Checkbox
+                                                                    id={id}
+                                                                    checked={excelBeasiswa.includes(id)}
+                                                                    onCheckedChange={() => toggleExcelBeasiswa(id)}
+                                                                />
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-semibold">{beasiswa.nama_beasiswa}</span>
+                                                                    <span className="text-sm text-muted-foreground">{beasiswa.jenis_beasiswa}</span>
+                                                                </div>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </ScrollArea>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Batal</Button>
+                                </DialogClose>
+                                <Button type="submit" onClick={handleExcelDownload}>
+                                    Download
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm">
