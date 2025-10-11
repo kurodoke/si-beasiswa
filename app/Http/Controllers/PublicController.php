@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Berita;
 use App\Models\Periode;
+use App\Models\Beasiswa;
 use Carbon\Carbon;
 
 class PublicController extends Controller
@@ -68,12 +69,21 @@ class PublicController extends Controller
             });
         })->first();
 
+        $laporan_per_beasiswa = Beasiswa::withCount([
+                'laporanBeasiswa as jumlah_laporan' => function ($query) {
+                    $query->where('status_validasi', 'disetujui');
+                }
+            ])
+            ->having('jumlah_laporan', '>', 0) 
+            ->get(['id', 'nama_beasiswa', 'jenis_beasiswa']);
+
         return Inertia::render('Public/Index', [
             'laporan' => $laporan,
             'berita' => $berita,
             'total_laporan' => $total_laporan,
             'laporan_per_periode' => $total_laporan_setiap_periode,
             'periode_aktif' => $periode_aktif,
+            'laporan_per_beasiswa' => $laporan_per_beasiswa,
         ]);
     }
 

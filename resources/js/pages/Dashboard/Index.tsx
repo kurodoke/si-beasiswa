@@ -27,11 +27,19 @@ interface DisplayTotalLaporanPerPeriode {
     jumlah_laporan: number;
 }
 
+interface DisplayPersentaseLaporanPeBeasiswa {
+    id: number;
+    nama_beasiswa: string;
+    jenis_beasiswa: string;
+    jumlah_laporan: number;
+}
+
 export default function Dashboard({
     auth,
     laporan,
     laporan_per_periode,
     summary,
+    laporan_per_beasiswa
 }: {
     auth: Auth;
     laporan: LaporanBeasiswa[];
@@ -40,8 +48,10 @@ export default function Dashboard({
     laporan_per_periode: LaporanPerPeriode[];
     periode_aktif: Periode;
     summary: SummaryLaporan;
+    laporan_per_beasiswa: DisplayPersentaseLaporanPeBeasiswa[];
 }) {
     const [laporanPerPeriode, setLaporanPerPeriode] = React.useState<DisplayTotalLaporanPerPeriode[]>([]);
+    const [laporanPerBeasiswa, setLaporanPerBeasiswa] = React.useState<{ name: string; value: number }[]>([]);
 
     // Warna orange (pie chart)
     const pieColors = ['#FFA726', '#FB8C00', '#F57C00', '#EF6C00', '#E65100', '#FFB74D', '#FF9800', '#FF8F00', '#FF6F00', '#FF5722'];
@@ -60,12 +70,22 @@ export default function Dashboard({
         }
     }, [laporan_per_periode]);
 
+    React.useEffect(() => {
+        if (laporan_per_beasiswa.length !== 0) {
+            const data = laporan_per_beasiswa.map((item) => ({
+                name: item.nama_beasiswa,
+                value: item.jumlah_laporan,
+            }));
+            setLaporanPerBeasiswa(data);
+        }
+    }, [laporan_per_beasiswa]);
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: users.index.url() }]}>
             <SectionCards summary={summary} />
 
             {/* Chart */}
-            <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 sm:grid-cols-12 px-6">
+            <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 px-6 sm:grid-cols-12">
                 <Card className="@container/card col-span-12 shadow-xs">
                     <CardHeader className="text-center">
                         <h2 className="w-full text-xl font-semibold text-pretty sm:text-2xl">Beasiswa Terdaftar</h2>
@@ -77,12 +97,20 @@ export default function Dashboard({
                         <div className="col-span-4 sm:col-span-5">
                             <ChartContainer
                                 config={{}}
-                                className="mx-auto aspect-square max-h-[250px] pb-0 [&_.recharts-pie-label-text]:fill-foreground"
+                                className="mx-auto aspect-square max-h-[250px] w-full pb-0 [&_.recharts-pie-label-text]:fill-foreground"
                             >
                                 <PieChart>
-                                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                                    <Pie data={laporanPerPeriode} dataKey="jumlah_laporan" nameKey="periode" label>
-                                        {laporanPerPeriode.map((entry, index) => (
+                                    <ChartTooltip
+                                        content={<ChartTooltipContent />}
+                                        formatter={(value: number, name: string) => [`${value} laporan : `, name]}
+                                    />
+                                    <Pie
+                                        data={laporanPerBeasiswa}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                    >
+                                        {laporanPerBeasiswa.map((entry, index) => (
                                             <Cell key={`cell-pie-${index}`} fill={pieColors[index % pieColors.length]} />
                                         ))}
                                     </Pie>
@@ -120,7 +148,7 @@ export default function Dashboard({
             </div>
 
             {/* Beasiswa */}
-            <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 sm:grid-cols-12 px-6">
+            <div className="mb-8 grid grid-cols-4 gap-4 space-y-4 px-6 sm:grid-cols-12">
                 <Card className="@container/card col-span-12 shadow-xs">
                     <CardHeader className="text-center">
                         <h2 className="w-full text-xl font-semibold text-pretty sm:text-2xl">Terdaftar Terbaru</h2>

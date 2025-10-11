@@ -65,6 +65,14 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $laporan_per_beasiswa = Beasiswa::withCount([
+                'laporanBeasiswa as jumlah_laporan' => function ($query) {
+                    $query->where('status_validasi', 'disetujui');
+                }
+            ])
+            ->having('jumlah_laporan', '>', 0) 
+            ->get(['id', 'nama_beasiswa', 'jenis_beasiswa']);
+
         return Inertia::render('Dashboard/Index', [
             'laporan' => $laporan,
 
@@ -80,6 +88,9 @@ class DashboardController extends Controller
                 'delta_sudah_diverifikasi' => $deltaVerified,
             ],
             'laporan_per_periode' => $total_laporan_setiap_periode,
+
+            'laporan_per_beasiswa' => $laporan_per_beasiswa,
+
         ]);
     }
 }
