@@ -151,10 +151,11 @@ const createColumns = (handlers: {
             const dateMulai = new Date(tahunMulai, bulanMulai, 1);
             const dateSelesai = new Date(tahunSelesai, bulanSelesai + 1, 0); // Hari terakhir bulan selesai
 
-            const isInPeriode = dateNow >= dateMulai && dateNow <= dateSelesai;
+            // Periode aktif jika sekarang >= tanggal mulai
+            const isAvailable = dateNow >= dateMulai;
 
             const handleCopy = () => {
-                const path = laporan.create([row.original.periode ,row.original.tahun_mulai]).url;
+                const path = laporan.create([row.original.periode, row.original.tahun_mulai]).url;
                 const fullLink = `${window.location.origin}${path}`;
 
                 navigator.clipboard
@@ -171,13 +172,22 @@ const createColumns = (handlers: {
                 <div className="w-32">
                     <Button
                         variant="link"
-                        size={'sm'}
+                        size="sm"
                         onClick={handleCopy}
-                        disabled={!isInPeriode}
-                        className={`text-sm shadow-none ${isInPeriode ? '' : 'cursor-not-allowed bg-accent text-accent-foreground'}`}
+                        disabled={!isAvailable}
+                        className={`text-sm shadow-none ${isAvailable ? '' : 'cursor-not-allowed bg-accent text-accent-foreground'}`}
                     >
-                        {isInPeriode ? <ForwardIcon className="h-4 w-4" /> : <FileWarningIcon className="h-4 w-4" />}
-                        {isInPeriode ? 'Bagikan Link' : 'Sudah ditutup'}
+                        {isAvailable ? (
+                            <>
+                                <ForwardIcon className="mr-1 h-4 w-4" />
+                                Bagikan Link
+                            </>
+                        ) : (
+                            <>
+                                <FileWarningIcon className="mr-1 h-4 w-4" />
+                                Belum tersedia
+                            </>
+                        )}
                     </Button>
                 </div>
             );

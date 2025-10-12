@@ -11,23 +11,24 @@ class PeriodeController extends Controller
 {
     public function index()
     {
-        $periode_laporan = Periode::select('id', 'periode', 'bulan_mulai', 'tahun_mulai', 'bulan_selesai', 'tahun_selesai')
-            ->withCount('laporanBeasiswa')
-            ->get()
-            ->groupBy('periode')
-            ->map(function ($group) {
-                return [
-                    'id' => $group->first()->id,
-                    'periode' => $group->first()->periode,
-                    'bulan_mulai' => $group->first()->bulan_mulai,
-                    'tahun_mulai' => $group->first()->tahun_mulai,
-                    'bulan_selesai' => $group->first()->bulan_selesai,
-                    'tahun_selesai' => $group->first()->tahun_selesai,
-                    'jumlah_laporan' => $group->sum('laporan_beasiswa_count'),
-                ];
-            })
-            ->values();
-
+    $periode_laporan = Periode::select('id', 'periode', 'bulan_mulai', 'tahun_mulai', 'bulan_selesai', 'tahun_selesai')
+        ->withCount('laporanBeasiswa')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->periode . '-' . $item->bulan_mulai . '-' . $item->tahun_mulai;
+        })
+        ->map(function ($group) {
+            return [
+                'id' => $group->first()->id,
+                'periode' => $group->first()->periode,
+                'bulan_mulai' => $group->first()->bulan_mulai,
+                'tahun_mulai' => $group->first()->tahun_mulai,
+                'bulan_selesai' => $group->first()->bulan_selesai,
+                'tahun_selesai' => $group->first()->tahun_selesai,
+                'jumlah_laporan' => $group->sum('laporan_beasiswa_count'),
+            ];
+        })
+        ->values();
 
         return Inertia::render('Admin/Periode/Index', [
             'data' => $periode_laporan,
