@@ -13,19 +13,28 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Form } from '@inertiajs/react';
-import { LoaderCircle, PlusIcon } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle, PlusIcon } from 'lucide-react';
 import React from 'react';
 import InputError from '../../input-error';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '../../ui/select';
 
 export function DialogCreate() {
     const [password, setPassword] = React.useState('');
+    const [showPassword, setShowPassword] = React.useState(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] = React.useState(false);
 
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                    <PlusIcon />
+                    <PlusIcon className="mr-2 h-4 w-4" />
                     <span className="hidden lg:inline">Tambah Akun</span>
                 </Button>
             </DialogTrigger>
@@ -71,21 +80,48 @@ export function DialogCreate() {
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-
                                     {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
                                 </div>
 
                                 {/* Password */}
-                                <div className="col-span-2 grid gap-1 md:col-span-6">
+                                <div className="col-span-2 grid gap-1 md:col-span-6 relative">
                                     <Label htmlFor="password">Password</Label>
-                                    <Input id="password" type="password" name="password" onChange={(e) => setPassword(e.target.value)} required />
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-7  text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        tabIndex={-1}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                     <InputError message={errors.password} />
                                 </div>
 
                                 {/* Konfirmasi Password */}
-                                <div className="col-span-2 grid gap-1 md:col-span-6">
+                                <div className="col-span-2 grid gap-1 md:col-span-6 relative">
                                     <Label htmlFor="password_confirmation">Konfirmasi Password</Label>
-                                    <Input id="password_confirmation" type="password" name="password_confirmation" required disabled={!password} />
+                                    <Input
+                                        id="password_confirmation"
+                                        type={showPasswordConfirmation ? 'text' : 'password'}
+                                        name="password_confirmation"
+                                        required
+                                        disabled={!password}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-7 text-gray-500"
+                                        onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                                        tabIndex={-1}
+                                    >
+                                        {showPasswordConfirmation ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                     <InputError message={errors.password_confirmation} />
                                 </div>
                             </div>
@@ -95,7 +131,7 @@ export function DialogCreate() {
                                     <Button variant="outline">Batal</Button>
                                 </DialogClose>
                                 <Button type="submit" disabled={processing}>
-                                    {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                                    {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
                                     {processing ? 'Menyimpan...' : 'Simpan'}
                                 </Button>
                             </DialogFooter>
