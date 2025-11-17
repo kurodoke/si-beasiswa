@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Separator } from '@/components/ui/separator';
 import React from 'react';
-import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, Legend } from 'recharts';
 
 interface LaporanPerPeriode {
     id: number;
@@ -54,19 +54,47 @@ export default function Dashboard({
     const [laporanPerBeasiswa, setLaporanPerBeasiswa] = React.useState<{ name: string; value: number }[]>([]);
 
     // Warna orange (pie chart)
-    const pieColors = ['#FFA726', '#FB8C00', '#F57C00', '#EF6C00', '#E65100', '#FFB74D', '#FF9800', '#FF8F00', '#FF6F00', '#FF5722'];
+    const pieColors = [
+        '#FFA726', // oranye
+        '#66BB6A', // hijau
+        '#42A5F5', // biru
+        '#AB47BC', // ungu
+        '#26C6DA', // cyan
+        '#FF7043', // merah-oranye
+        '#D4E157', // lime
+        '#FFCA28', // kuning
+        '#8D6E63', // coklat
+        '#EC407A', // pink
+    ];
 
     // Warna biru (bar chart)
     const barColors = ['#42A5F5', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1', '#64B5F6', '#2196F3', '#1E88E5', '#0288D1', '#03A9F4'];
 
     React.useEffect(() => {
         if (laporan_per_periode.length !== 0) {
-            const itemLaporanPerPeriode = laporan_per_periode.map((item) => ({
-                periode: `${item.periode} - ${item.tahun_mulai}`,
-                jumlah_laporan: item.jumlah_laporan,
-            }));
+            const sorted = laporan_per_periode.sort((a, b) => {
+                if (a.tahun_mulai !== b.tahun_mulai) {
+                    return a.tahun_mulai - b.tahun_mulai;
+                }
+                const order = { Ganjil: 1, Genap: 2 };
+                return order[a.periode] - order[b.periode];
+            });
 
-            setLaporanPerPeriode(itemLaporanPerPeriode);
+            const groupedByYear = Object.values(
+                sorted.reduce((acc, item) => {
+                    const year = item.tahun_mulai;
+
+                    if (!acc[year]) {
+                        acc[year] = { tahun: year };
+                    }
+
+                    acc[year][item.periode] = item.jumlah_laporan;
+
+                    return acc;
+                }, {}),
+            );
+
+            setLaporanPerPeriode(groupedByYear);
         }
     }, [laporan_per_periode]);
 
@@ -99,21 +127,28 @@ export default function Dashboard({
 
                         <CardContent className="grid grid-cols-4 sm:grid-cols-12">
                             {/* Pie Chart */}
+                            {/* Pie Chart */}
                             <div className="col-span-4 sm:col-span-5">
                                 <ChartContainer
                                     config={{}}
-                                    className="mx-auto aspect-square max-h-[250px] pb-0 [&_.recharts-pie-label-text]:fill-foreground w-full"
+                                    className="mx-auto aspect-square max-h-[300px] w-full pb-0 [&_.recharts-pie-label-text]:fill-foreground"
                                 >
                                     <PieChart>
+                                        <Legend />
                                         <ChartTooltip
                                             content={<ChartTooltipContent />}
-                                            formatter={(value: number, name: string) => [`${value} laporan : `, name]}
+                                            formatter={(value, name) => [`${value} laporan `, <span className="font-bold">{name}</span>]}
                                         />
+
                                         <Pie
                                             data={laporanPerBeasiswa}
                                             dataKey="value"
                                             nameKey="name"
-                                            label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                                            labelLine={false}
+                                            label={false} // matikan label dalam pie
+                                            paddingAngle={2} // jarak antar segment (border effect)
+                                            outerRadius={100} // atur ukuran pie
+                                            innerRadius={40} // buat donut, opsional
                                         >
                                             {laporanPerBeasiswa.map((entry, index) => (
                                                 <Cell key={`cell-pie-${index}`} fill={pieColors[index % pieColors.length]} />
@@ -131,18 +166,27 @@ export default function Dashboard({
 
                             {/* Bar Chart */}
                             <div className="col-span-4 sm:col-span-5">
-                                <ChartContainer config={{}}>
+                                <ChartContainer
+                                    config={{}}
+                                    className="mx-auto aspect-square max-h-[300px] w-full pb-0 [&_.recharts-pie-label-text]:fill-foreground"
+                                >
                                     <BarChart data={laporanPerPeriode}>
                                         <CartesianGrid vertical={false} />
-                                        <XAxis dataKey="periode" tickLine={false} tickMargin={10} axisLine={false} />
-                                        <ChartTooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent hideLabel />}
-                                            formatter={(value: number) => `Jumlah laporan: ${value}`}
-                                        />
-                                        <Bar dataKey="jumlah_laporan" radius={[8, 8, 0, 0]}>
-                                            {laporanPerPeriode.map((entry, index) => (
-                                                <Cell key={`cell-bar-${index}`} fill={barColors[index % barColors.length]} />
+                                        <XAxis dataKey="tahun" axisLine={false} tickLine={false} tickMargin={10} />
+
+                                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+
+                                        {/* ==== Bar untuk Ganjil ==== */}
+                                        <Bar dataKey="Ganjil" radius={[8, 8, 0, 0]}>
+                                            {laporanPerPeriode.map((_, index) => (
+                                                <Cell key={`ganjil-${index}`} fill={barColors[(index * 2) % barColors.length]} />
+                                            ))}
+                                        </Bar>
+
+                                        {/* ==== Bar untuk Genap ==== */}
+                                        <Bar dataKey="Genap" radius={[8, 8, 0, 0]}>
+                                            {laporanPerPeriode.map((_, index) => (
+                                                <Cell key={`genap-${index}`} fill={barColors[(index * 2 + 1) % barColors.length]} />
                                             ))}
                                         </Bar>
                                     </BarChart>

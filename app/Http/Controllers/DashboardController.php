@@ -38,27 +38,21 @@ class DashboardController extends Controller
             ->count();
         $deltaVerified = $verified - $verifiedLastMonth;
 
-        $total_laporan_setiap_periode = Periode::select('id', 'periode', 'bulan_mulai', 'tahun_mulai', 'bulan_selesai', 'tahun_selesai')
-            ->withCount([
-                'laporanBeasiswa as laporan_beasiswa_count' => function ($query) {
-                    $query->where('status_validasi', 'disetujui');
-                }
-            ])
-            ->get()
-            ->groupBy('periode')
-            ->map(function ($group) {
-                return [
-                    'id' => $group->first()->id,
-                    'periode' => $group->first()->periode,
-                    'bulan_mulai' => $group->first()->bulan_mulai,
-                    'tahun_mulai' => $group->first()->tahun_mulai,
-                    'bulan_selesai' => $group->first()->bulan_selesai,
-                    'tahun_selesai' => $group->first()->tahun_selesai,
-                    'jumlah_laporan' => $group->sum('laporan_beasiswa_count'),
-                ];
-            })
-            ->values();
-        
+        $total_laporan_setiap_periode = Periode::select(
+            'id',
+            'periode',
+            'bulan_mulai',
+            'tahun_mulai',
+            'bulan_selesai',
+            'tahun_selesai'
+        )
+        ->withCount([
+            'laporanBeasiswa as jumlah_laporan' => function ($query) {
+                $query->where('status_validasi', 'disetujui');
+            }
+        ])
+        ->get();
+
         $laporan = LaporanBeasiswa::with(['beasiswa', 'verifier', 'dokumenBukti', 'periode'])
             ->where('status_validasi', 'disetujui')
             ->latest()
